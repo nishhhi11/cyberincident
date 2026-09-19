@@ -2,7 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+
 const authRoutes = require("./routes/authRoutes");
+const incidentRoutes = require("./routes/incidentRoutes");
+
 const protect = require("./middleware/authMiddleware");
 const allowRoles = require("./middleware/roleMiddleware");
 
@@ -16,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/incidents", incidentRoutes);
 
 app.get("/", (req, res) => {
     res.send("CyberIncident Backend Running");
