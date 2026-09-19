@@ -3,6 +3,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const protect = require("./middleware/authMiddleware");
+const allowRoles = require("./middleware/roleMiddleware");
 
 dotenv.config();
 
@@ -18,6 +20,23 @@ app.use("/api/auth", authRoutes);
 app.get("/", (req, res) => {
     res.send("CyberIncident Backend Running");
 });
+
+app.get(
+    "/api/test",
+    protect,
+    allowRoles(
+        "Employee",
+        "Support Agent",
+        "Security Analyst",
+        "Admin"
+    ),
+    (req, res) => {
+        res.json({
+            message: "Protected route working",
+            user: req.user
+        });
+    }
+);
 
 const PORT = process.env.PORT || 3000;
 
