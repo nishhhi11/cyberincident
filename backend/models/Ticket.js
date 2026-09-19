@@ -34,6 +34,16 @@ const ticketSchema = new mongoose.Schema(
         slaDeadline: {
             type: Date,
             default: null
+        },
+
+        resolution: {
+            type: String,
+            default: null
+        },
+
+        resolvedAt: {
+            type: Date,
+            default: null
         }
     },
     {

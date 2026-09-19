@@ -2,6 +2,22 @@ const Ticket = require("../models/Ticket");
 const Incident = require("../models/Incident");
 const User = require("../models/User");
 
+const getSlaHours = (priority) => {
+    if (priority === "Critical") {
+        return 2;
+    }
+
+    if (priority === "High") {
+        return 6;
+    }
+
+    if (priority === "Medium") {
+        return 12;
+    }
+
+    return 24;
+};
+
 const createTicket = async (req, res) => {
     try {
         const { incidentId } = req.body;
@@ -14,11 +30,18 @@ const createTicket = async (req, res) => {
             });
         }
 
+        const slaHours = getSlaHours(incident.priority);
+
+        const slaDeadline = new Date(
+            Date.now() + slaHours * 60 * 60 * 1000
+        );
+
         const ticket = await Ticket.create({
             incident: incident._id,
             title: incident.title,
             priority: incident.priority,
-            status: "Open"
+            status: "Open",
+            slaDeadline
         });
 
         res.status(201).json({
@@ -95,8 +118,88 @@ const assignTicket = async (req, res) => {
     }
 };
 
+const updateTicketStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+
+        const allowedStatuses = [
+            "Open",
+            "Assigned",
+            "In Progress",
+            "Resolved",
+            "Escalated"
+        ];
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({
+                message: "Invalid ticket status"
+            });
+        }
+
+        const ticket = await Ticket.findById(req.params.id);
+
+        if (!ticket) {
+            return res.status(404).json({
+                message: "Ticket not found"
+            });
+        }
+
+        ticket.status = status;
+
+        await ticket.save();
+
+        res.json({
+            message: "Ticket status updated successfully",
+            ticket
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to update ticket status",
+            error: error.message
+        });
+    }
+};
+
+const resolveTicket = async (req, res) => {
+    try {
+        const { resolution } = req.body;
+
+        if (!resolution) {
+            return res.status(400).json({
+                message: "Resolution is required"
+            });
+        }
+
+        const ticket = await Ticket.findById(req.params.id);
+
+        if (!ticket) {
+            return res.status(404).json({
+                message: "Ticket not found"
+            });
+        }
+
+        ticket.status = "Resolved";
+        ticket.resolution = resolution;
+        ticket.resolvedAt = new Date();
+
+        await ticket.save();
+
+        res.json({
+            message: "Ticket resolved successfully",
+            ticket
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to resolve ticket",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createTicket,
     getTickets,
-    assignTicket
+    assignTicket,
+    updateTicketStatus,
+    resolveTicket
 };
