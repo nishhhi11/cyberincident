@@ -52,7 +52,103 @@ const getIncidents = async (req, res) => {
     }
 };
 
+const getIncidentById = async (req, res) => {
+    try {
+        const incident = await Incident.findById(req.params.id)
+            .populate("reportedBy", "name email role");
+
+        if (!incident) {
+            return res.status(404).json({
+                message: "Incident not found"
+            });
+        }
+
+        res.json(incident);
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to get incident",
+            error: error.message
+        });
+    }
+};
+
+const updateIncident = async (req, res) => {
+    try {
+        const { title, category, description, location, impact, urgency, status } =
+            req.body;
+
+        const incident = await Incident.findById(req.params.id);
+
+        if (!incident) {
+            return res.status(404).json({
+                message: "Incident not found"
+            });
+        }
+
+        if (title) incident.title = title;
+        if (category) incident.category = category;
+        if (description) incident.description = description;
+        if (location) incident.location = location;
+        if (impact) incident.impact = impact;
+        if (urgency) incident.urgency = urgency;
+        if (status) incident.status = status;
+
+        if (impact || urgency) {
+            const newImpact = impact || incident.impact;
+            const newUrgency = urgency || incident.urgency;
+
+            if (newImpact === "High" && newUrgency === "High") {
+                incident.priority = "Critical";
+            } else if (newImpact === "High" || newUrgency === "High") {
+                incident.priority = "High";
+            } else if (newImpact === "Medium" || newUrgency === "Medium") {
+                incident.priority = "Medium";
+            } else {
+                incident.priority = "Low";
+            }
+        }
+
+        await incident.save();
+
+        res.json({
+            message: "Incident updated successfully",
+            incident
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to update incident",
+            error: error.message
+        });
+    }
+};
+
+const deleteIncident = async (req, res) => {
+    try {
+        const incident = await Incident.findById(req.params.id);
+
+        if (!incident) {
+            return res.status(404).json({
+                message: "Incident not found"
+            });
+        }
+
+        await incident.deleteOne();
+
+        res.json({
+            message: "Incident deleted successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to delete incident",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createIncident,
-    getIncidents
+    getIncidents,
+    getIncidentById,
+    updateIncident,
+    deleteIncident
 };
