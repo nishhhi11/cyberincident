@@ -277,3 +277,56 @@ export const createComment = async (ticketId, text) => {
 
     return data;
 };
+
+export const getAttachments = async (ticketId) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        `${API_URL}/attachments/${ticketId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to get attachments"
+        );
+    }
+
+    return data;
+};
+
+export const uploadAttachment = async (ticketId, file) => {
+    const token = localStorage.getItem("token");
+
+    const formData = new FormData();
+
+    formData.append("ticket", ticketId);
+    formData.append("file", file);
+
+    const response = await fetch(
+        `${API_URL}/attachments`,
+        {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: formData
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to upload attachment"
+        );
+    }
+
+    return data;
+};

@@ -6,7 +6,9 @@ import {
     updateTicketStatus,
     resolveTicket,
     getComments,
-    createComment
+    createComment,
+    getAttachments,
+    uploadAttachment
 } from "../services/api";
 
 function Tickets() {
@@ -18,6 +20,8 @@ function Tickets() {
     const [comments, setComments] = useState({});
     const [newComments, setNewComments] = useState({});
     const [openComments, setOpenComments] = useState({});
+    const [attachments, setAttachments] = useState({});
+    const [selectedFiles, setSelectedFiles] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
@@ -80,6 +84,19 @@ function Tickets() {
         }
     };
 
+    const loadAttachments = async (ticketId) => {
+        try {
+            const data = await getAttachments(ticketId);
+
+            setAttachments({
+                ...attachments,
+                [ticketId]: data
+            });
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     const handleUserChange = (ticketId, userId) => {
         setSelectedUsers({
             ...selectedUsers,
@@ -105,6 +122,13 @@ function Tickets() {
         setNewComments({
             ...newComments,
             [ticketId]: text
+        });
+    };
+
+    const handleFileChange = (ticketId, file) => {
+        setSelectedFiles({
+            ...selectedFiles,
+            [ticketId]: file
         });
     };
 
@@ -196,6 +220,33 @@ function Tickets() {
             await loadTicketComments(ticketId);
 
             setMessage("Comment added successfully");
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleUpload = async (ticketId) => {
+        const file = selectedFiles[ticketId];
+
+        if (!file) {
+            setError("Please select a file first");
+            return;
+        }
+
+        try {
+            setError("");
+            setMessage("");
+
+            await uploadAttachment(ticketId, file);
+
+            setSelectedFiles({
+                ...selectedFiles,
+                [ticketId]: null
+            });
+
+            await loadAttachments(ticketId);
+
+            setMessage("Attachment uploaded successfully");
         } catch (error) {
             setError(error.message);
         }
@@ -325,7 +376,7 @@ function Tickets() {
                                                 </strong>
 
                                                 <p>
-                                                    {comment.text}
+                                                    {comment.message}
                                                 </p>
 
                                                 <small
@@ -390,6 +441,87 @@ function Tickets() {
                                     )}
                                 </div>
                             )}
+
+                            <div style={{ marginTop: "15px" }}>
+                                <h4>Attachments</h4>
+
+                                <button
+                                    onClick={() =>
+                                        loadAttachments(ticket._id)
+                                    }
+                                    style={{
+                                        padding: "8px 14px",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        background: "#4b5563",
+                                        color: "white",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    View Attachments
+                                </button>
+
+                                {attachments[ticket._id] && (
+                                    <div style={{ marginTop: "10px" }}>
+                                        {attachments[ticket._id].length ===
+                                        0 ? (
+                                            <p
+                                                style={{
+                                                    color: "#9ca3af"
+                                                }}
+                                            >
+                                                No attachments yet.
+                                            </p>
+                                        ) : (
+                                            attachments[ticket._id].map(
+                                                (attachment) => (
+                                                    <p
+                                                        key={
+                                                            attachment._id
+                                                        }
+                                                    >
+                                                        📎{" "}
+                                                        {
+                                                            attachment.fileName
+                                                        }
+                                                    </p>
+                                                )
+                                            )
+                                        )}
+                                    </div>
+                                )}
+
+                                {canManageTickets && (
+                                    <div style={{ marginTop: "10px" }}>
+                                        <input
+                                            type="file"
+                                            onChange={(event) =>
+                                                handleFileChange(
+                                                    ticket._id,
+                                                    event.target.files[0]
+                                                )
+                                            }
+                                        />
+
+                                        <button
+                                            onClick={() =>
+                                                handleUpload(ticket._id)
+                                            }
+                                            style={{
+                                                marginLeft: "10px",
+                                                padding: "8px 14px",
+                                                border: "none",
+                                                borderRadius: "6px",
+                                                background: "#2563eb",
+                                                color: "white",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Upload
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
 
                             {canManageTickets && (
                                 <div style={{ marginTop: "15px" }}>
