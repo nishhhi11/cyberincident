@@ -2,55 +2,36 @@ const Incident = require("../models/Incident");
 const { createAuditLog } = require("./auditController");
 
 const getFingerprintPrefix = (category) => {
-    if (category === "Phishing") {
-        return "PHISH";
-    }
+    const prefixes = {
+        Phishing: "PHISH",
+        Malware: "MALW",
+        "Account/Security": "ACCT",
+        "Suspicious Activity": "SUSP",
+        "Network Issue": "NET"
+    };
 
-    if (category === "Malware") {
-        return "MALW";
-    }
-
-    if (category === "Account/Security") {
-        return "ACCT";
-    }
-
-    if (category === "Suspicious Activity") {
-        return "SUSP";
-    }
-
-    if (category === "Network Issue") {
-        return "NET";
-    }
-
-    return "OTHER";
+    return prefixes[category] || "OTHER";
 };
 
 const generateFingerprint = async (category) => {
     const prefix = getFingerprintPrefix(category);
     const year = new Date().getFullYear().toString().slice(-2);
+    const count = await Incident.countDocuments({ category });
 
-    const count = await Incident.countDocuments({
-        category
-    });
+    return `${prefix}-${year}-${String(count + 1).padStart(3, "0")}`;
+};
 
-    const number = String(count + 1).padStart(3, "0");
-
-    return `${prefix}-${year}-${number}`;
+const calculatePriority = (impact, urgency) => {
+    if (impact === "High" && urgency === "High") return "Critical";
+    if (impact === "High" || urgency === "High") return "High";
+    if (impact === "Medium" || urgency === "Medium") return "Medium";
+    return "Low";
 };
 
 const calculateRiskLevel = (impact, urgency) => {
-    if (impact === "High" && urgency === "High") {
-        return "Critical";
-    }
-
-    if (impact === "High" || urgency === "High") {
-        return "High";
-    }
-
-    if (impact === "Medium" || urgency === "Medium") {
-        return "Medium";
-    }
-
+    if (impact === "High" && urgency === "High") return "Critical";
+    if (impact === "High" || urgency === "High") return "High";
+    if (impact === "Medium" || urgency === "Medium") return "Medium";
     return "Low";
 };
 
@@ -65,30 +46,16 @@ const createIncident = async (req, res) => {
             urgency
         } = req.body;
 
-        let priority = "Low";
-
-        if (impact === "High" && urgency === "High") {
-            priority = "Critical";
-        } else if (impact === "High" || urgency === "High") {
-            priority = "High";
-        } else if (impact === "Medium" || urgency === "Medium") {
-            priority = "Medium";
-        }
-
-        const riskLevel = calculateRiskLevel(impact, urgency);
-
-        const fingerprint = await generateFingerprint(category);
-
         const incident = await Incident.create({
-            fingerprint,
+            fingerprint: await generateFingerprint(category),
             title,
             category,
             description,
             location,
             impact,
             urgency,
-            priority,
-            riskLevel,
+            priority: calculatePriority(impact, urgency),
+            riskLevel: calculateRiskLevel(impact, urgency),
             reportedBy: req.user.id
         });
 
@@ -209,23 +176,8 @@ const updateIncident = async (req, res) => {
             const newImpact = impact || incident.impact;
             const newUrgency = urgency || incident.urgency;
 
-            if (newImpact === "High" && newUrgency === "High") {
-                incident.priority = "Critical";
-            } else if (newImpact === "High" || newUrgency === "High") {
-                incident.priority = "High";
-            } else if (
-                newImpact === "Medium" ||
-                newUrgency === "Medium"
-            ) {
-                incident.priority = "Medium";
-            } else {
-                incident.priority = "Low";
-            }
-
-            incident.riskLevel = calculateRiskLevel(
-                newImpact,
-                newUrgency
-            );
+            incident.priority = calculatePriority(newImpact, newUrgency);
+            incident.riskLevel = calculateRiskLevel(newImpact, newUrgency);
         }
 
         await incident.save();
@@ -271,15 +223,11 @@ const getIncidentStats = async (req, res) => {
             {
                 $group: {
                     _id: "$status",
-                    count: {
-                        $sum: 1
-                    }
+                    count: { $sum: 1 }
                 }
             },
             {
-                $sort: {
-                    _id: 1
-                }
+                $sort: { _id: 1 }
             }
         ]);
 
