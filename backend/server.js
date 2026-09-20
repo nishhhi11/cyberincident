@@ -10,13 +10,9 @@ const commentRoutes = require("./routes/commentRoutes");
 const attachmentRoutes = require("./routes/attachmentRoutes");
 const auditRoutes = require("./routes/auditRoutes");
 
-const protect = require("./middleware/authMiddleware");
-const allowRoles = require("./middleware/roleMiddleware");
-
 const checkSlaEscalation = require("./utils/slaChecker");
 
 dotenv.config();
-
 connectDB();
 
 const app = express();
@@ -35,29 +31,10 @@ app.get("/", (req, res) => {
     res.send("CyberIncident Backend Running");
 });
 
-app.get(
-    "/api/test",
-    protect,
-    allowRoles(
-        "Employee",
-        "Support Agent",
-        "Security Analyst",
-        "Admin"
-    ),
-    (req, res) => {
-        res.json({
-            message: "Protected route working",
-            user: req.user
-        });
-    }
-);
-
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 
-setInterval(() => {
-    checkSlaEscalation();
-}, 60000);
+setInterval(checkSlaEscalation, 60000);
