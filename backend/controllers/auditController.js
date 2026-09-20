@@ -37,7 +37,29 @@ const getAuditLogs = async (req, res) => {
     }
 };
 
+const getIncidentTimeline = async (req, res) => {
+    try {
+        const logs = await AuditLog.find({
+            incident: req.params.incidentId
+        })
+            .populate("user", "name email role")
+            .populate("ticket", "title status priority")
+            .sort({ createdAt: 1 });
+
+        res.json({
+            incidentId: req.params.incidentId,
+            timeline: logs
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to get incident timeline",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createAuditLog,
-    getAuditLogs
+    getAuditLogs,
+    getIncidentTimeline
 };

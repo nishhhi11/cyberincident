@@ -1,7 +1,8 @@
 const express = require("express");
 
 const {
-    getAuditLogs
+    getAuditLogs,
+    getIncidentTimeline
 } = require("../controllers/auditController");
 
 const protect = require("../middleware/authMiddleware");
@@ -18,6 +19,18 @@ router.get(
         "Admin"
     ),
     getAuditLogs
+);
+
+router.get(
+    "/incident/:incidentId",
+    protect,
+    allowRoles(
+        "Employee",
+        "Support Agent",
+        "Security Analyst",
+        "Admin"
+    ),
+    getIncidentTimeline
 );
 
 module.exports = router;
