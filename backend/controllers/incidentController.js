@@ -1,8 +1,16 @@
 const Incident = require("../models/Incident");
+const { createAuditLog } = require("./auditController");
 
 const createIncident = async (req, res) => {
     try {
-        const { title, category, description, location, impact, urgency } = req.body;
+        const {
+            title,
+            category,
+            description,
+            location,
+            impact,
+            urgency
+        } = req.body;
 
         let priority = "Low";
 
@@ -23,6 +31,13 @@ const createIncident = async (req, res) => {
             urgency,
             priority,
             reportedBy: req.user.id
+        });
+
+        await createAuditLog({
+            user: req.user.id,
+            action: "Incident Created",
+            incident: incident._id,
+            details: `Incident "${incident.title}" was created`
         });
 
         res.status(201).json({
@@ -74,8 +89,15 @@ const getIncidentById = async (req, res) => {
 
 const updateIncident = async (req, res) => {
     try {
-        const { title, category, description, location, impact, urgency, status } =
-            req.body;
+        const {
+            title,
+            category,
+            description,
+            location,
+            impact,
+            urgency,
+            status
+        } = req.body;
 
         const incident = await Incident.findById(req.params.id);
 
@@ -101,7 +123,10 @@ const updateIncident = async (req, res) => {
                 incident.priority = "Critical";
             } else if (newImpact === "High" || newUrgency === "High") {
                 incident.priority = "High";
-            } else if (newImpact === "Medium" || newUrgency === "Medium") {
+            } else if (
+                newImpact === "Medium" ||
+                newUrgency === "Medium"
+            ) {
                 incident.priority = "Medium";
             } else {
                 incident.priority = "Low";

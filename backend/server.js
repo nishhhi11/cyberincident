@@ -8,6 +8,7 @@ const incidentRoutes = require("./routes/incidentRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const attachmentRoutes = require("./routes/attachmentRoutes");
+const auditRoutes = require("./routes/auditRoutes");
 
 const protect = require("./middleware/authMiddleware");
 const allowRoles = require("./middleware/roleMiddleware");
@@ -26,6 +27,7 @@ app.use("/api/incidents", incidentRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/attachments", attachmentRoutes);
+app.use("/api/audit", auditRoutes);
 
 app.get("/", (req, res) => {
     res.send("CyberIncident Backend Running");
