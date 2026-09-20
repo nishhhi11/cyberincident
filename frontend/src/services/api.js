@@ -56,3 +56,24 @@ export const getIncidents = async () => {
 
     return data;
 };
+
+export const createIncident = async (incidentData) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/incidents`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(incidentData)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to create incident");
+    }
+
+    return data;
+};

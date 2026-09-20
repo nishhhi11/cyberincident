@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import ReportIncident from "./pages/ReportIncident";
 import "./App.css";
 
 function App() {
@@ -8,11 +9,39 @@ function App() {
     Boolean(localStorage.getItem("token"))
   );
 
-  if (loggedIn) {
-    return <Dashboard />;
+  const [page, setPage] = useState("dashboard");
+
+  if (!loggedIn) {
+    return <Login onLogin={() => setLoggedIn(true)} />;
   }
 
-  return <Login onLogin={() => setLoggedIn(true)} />;
+  if (page === "report") {
+    return (
+      <>
+        <button
+          className="back-button"
+          onClick={() => setPage("dashboard")}
+        >
+          ← Back to Dashboard
+        </button>
+
+        <ReportIncident />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <button
+        className="report-button"
+        onClick={() => setPage("report")}
+      >
+        + Report Incident
+      </button>
+
+      <Dashboard />
+    </>
+  );
 }
 
 export default App;

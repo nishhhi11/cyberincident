@@ -124,3 +124,93 @@ body {
   margin: 5px 0;
   color: #9ca3af;
 }
+
+.report-button,
+.back-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.report-button:hover,
+.back-button:hover {
+  background: #1d4ed8;
+}
+
+.report-page {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 45px 20px;
+}
+
+.report-page h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 40px;
+}
+
+.report-page > p {
+  text-align: center;
+  color: #9ca3af;
+  margin-bottom: 30px;
+}
+
+.incident-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 30px;
+  background: #171a23;
+  border: 1px solid #292d38;
+  border-radius: 16px;
+}
+
+.incident-form label {
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+.incident-form input,
+.incident-form select,
+.incident-form textarea {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #343946;
+  border-radius: 8px;
+  background: #0f1117;
+  color: white;
+  font-size: 15px;
+}
+
+.incident-form textarea {
+  resize: vertical;
+}
+
+.incident-form button {
+  margin-top: 15px;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.incident-form button:hover {
+  background: #1d4ed8;
+}
+
+.success-message {
+  color: #4ade80;
+  text-align: center;
+}
+
+.error-message {
+  color: #f87171;
+  text-align: center;
+}
