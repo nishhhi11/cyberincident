@@ -169,3 +169,31 @@ export const assignTicket = async (ticketId, userId) => {
 
     return data;
 };
+
+export const updateTicketStatus = async (ticketId, status) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        `${API_URL}/tickets/${ticketId}/status`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                status
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to update ticket status"
+        );
+    }
+
+    return data;
+};

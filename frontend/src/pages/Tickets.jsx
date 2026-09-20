@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import {
     getTickets,
     getAssignableUsers,
-    assignTicket
+    assignTicket,
+    updateTicketStatus
 } from "../services/api";
 
 function Tickets() {
     const [tickets, setTickets] = useState([]);
     const [users, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState({});
+    const [selectedStatuses, setSelectedStatuses] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
@@ -60,6 +62,13 @@ function Tickets() {
         });
     };
 
+    const handleStatusChange = (ticketId, status) => {
+        setSelectedStatuses({
+            ...selectedStatuses,
+            [ticketId]: status
+        });
+    };
+
     const handleAssign = async (ticketId) => {
         const userId = selectedUsers[ticketId];
 
@@ -75,6 +84,28 @@ function Tickets() {
             await assignTicket(ticketId, userId);
 
             setMessage("Ticket assigned successfully");
+
+            await loadTickets();
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleStatusUpdate = async (ticketId) => {
+        const status = selectedStatuses[ticketId];
+
+        if (!status) {
+            setError("Please select a status first");
+            return;
+        }
+
+        try {
+            setError("");
+            setMessage("");
+
+            await updateTicketStatus(ticketId, status);
+
+            setMessage("Ticket status updated successfully");
 
             await loadTickets();
         } catch (error) {
@@ -187,6 +218,64 @@ function Tickets() {
                                     >
                                         Assign
                                     </button>
+
+                                    <div style={{ marginTop: "10px" }}>
+                                        <select
+                                            value={
+                                                selectedStatuses[ticket._id] ||
+                                                ""
+                                            }
+                                            onChange={(event) =>
+                                                handleStatusChange(
+                                                    ticket._id,
+                                                    event.target.value
+                                                )
+                                            }
+                                        >
+                                            <option value="">
+                                                Select status
+                                            </option>
+
+                                            <option value="Open">
+                                                Open
+                                            </option>
+
+                                            <option value="Assigned">
+                                                Assigned
+                                            </option>
+
+                                            <option value="In Progress">
+                                                In Progress
+                                            </option>
+
+                                            <option value="Resolved">
+                                                Resolved
+                                            </option>
+
+                                            <option value="Escalated">
+                                                Escalated
+                                            </option>
+                                        </select>
+
+                                        <button
+                                            onClick={() =>
+                                                handleStatusUpdate(
+                                                    ticket._id
+                                                )
+                                            }
+                                            style={{
+                                                marginLeft: "10px",
+                                                padding: "8px 14px",
+                                                border: "none",
+                                                borderRadius: "6px",
+                                                background: "#374151",
+                                                color: "white",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Update Status
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
