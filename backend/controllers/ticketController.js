@@ -3,36 +3,23 @@ const Incident = require("../models/Incident");
 const User = require("../models/User");
 const { createAuditLog } = require("./auditController");
 
-const getSlaHours = (priority) => {
-    if (priority === "Critical") {
-        return 2;
-    }
-
-    if (priority === "High") {
-        return 6;
-    }
-
-    if (priority === "Medium") {
-        return 12;
-    }
-
-    return 24;
-};
+const getSlaHours = (priority) => ({
+    Critical: 2,
+    High: 6,
+    Medium: 12,
+    Low: 24
+}[priority] || 24);
 
 const createTicket = async (req, res) => {
     try {
         const { incidentId } = req.body;
-
         const incident = await Incident.findById(incidentId);
 
         if (!incident) {
-            return res.status(404).json({
-                message: "Incident not found"
-            });
+            return res.status(404).json({ message: "Incident not found" });
         }
 
         const slaHours = getSlaHours(incident.priority);
-
         const slaDeadline = new Date(
             Date.now() + slaHours * 60 * 60 * 1000
         );
@@ -59,24 +46,14 @@ const createTicket = async (req, res) => {
 
 const getTickets = async (req, res) => {
     try {
-        const {
-            search,
-            page = 1,
-            limit = 5
-        } = req.query;
-
+        const { search, page = 1, limit = 5 } = req.query;
         const currentPage = Number(page);
         const itemsPerPage = Number(limit);
         const skip = (currentPage - 1) * itemsPerPage;
 
-        let filter = {};
-
-        if (search) {
-            filter.title = {
-                $regex: search,
-                $options: "i"
-            };
-        }
+        const filter = search
+            ? { title: { $regex: search, $options: "i" } }
+            : {};
 
         const totalTickets = await Ticket.countDocuments(filter);
 
@@ -104,27 +81,19 @@ const getTickets = async (req, res) => {
 const assignTicket = async (req, res) => {
     try {
         const { userId } = req.body;
-
         const ticket = await Ticket.findById(req.params.id);
 
         if (!ticket) {
-            return res.status(404).json({
-                message: "Ticket not found"
-            });
+            return res.status(404).json({ message: "Ticket not found" });
         }
 
         const user = await User.findById(userId);
 
         if (!user) {
-            return res.status(404).json({
-                message: "User not found"
-            });
+            return res.status(404).json({ message: "User not found" });
         }
 
-        if (
-            user.role !== "Support Agent" &&
-            user.role !== "Security Analyst"
-        ) {
+        if (!["Support Agent", "Security Analyst"].includes(user.role)) {
             return res.status(400).json({
                 message: "User cannot be assigned to a ticket"
             });
@@ -132,7 +101,6 @@ const assignTicket = async (req, res) => {
 
         ticket.assignedTo = user._id;
         ticket.status = "Assigned";
-
         await ticket.save();
 
         await createAuditLog({
@@ -157,7 +125,6 @@ const assignTicket = async (req, res) => {
 const updateTicketStatus = async (req, res) => {
     try {
         const { status } = req.body;
-
         const allowedStatuses = [
             "Open",
             "Assigned",
@@ -167,23 +134,17 @@ const updateTicketStatus = async (req, res) => {
         ];
 
         if (!allowedStatuses.includes(status)) {
-            return res.status(400).json({
-                message: "Invalid ticket status"
-            });
+            return res.status(400).json({ message: "Invalid ticket status" });
         }
 
         const ticket = await Ticket.findById(req.params.id);
 
         if (!ticket) {
-            return res.status(404).json({
-                message: "Ticket not found"
-            });
+            return res.status(404).json({ message: "Ticket not found" });
         }
 
         const oldStatus = ticket.status;
-
         ticket.status = status;
-
         await ticket.save();
 
         await createAuditLog({
@@ -210,23 +171,18 @@ const resolveTicket = async (req, res) => {
         const { resolution } = req.body;
 
         if (!resolution) {
-            return res.status(400).json({
-                message: "Resolution is required"
-            });
+            return res.status(400).json({ message: "Resolution is required" });
         }
 
         const ticket = await Ticket.findById(req.params.id);
 
         if (!ticket) {
-            return res.status(404).json({
-                message: "Ticket not found"
-            });
+            return res.status(404).json({ message: "Ticket not found" });
         }
 
         ticket.status = "Resolved";
         ticket.resolution = resolution;
         ticket.resolvedAt = new Date();
-
         await ticket.save();
 
         await createAuditLog({
