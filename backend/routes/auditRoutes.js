@@ -13,23 +13,14 @@ const router = express.Router();
 router.get(
     "/",
     protect,
-    allowRoles(
-        "Support Agent",
-        "Security Analyst",
-        "Admin"
-    ),
+    allowRoles("Support Agent", "Security Analyst", "Admin"),
     getAuditLogs
 );
 
 router.get(
     "/incident/:incidentId",
     protect,
-    allowRoles(
-        "Employee",
-        "Support Agent",
-        "Security Analyst",
-        "Admin"
-    ),
+    allowRoles("Employee", "Support Agent", "Security Analyst", "Admin"),
     getIncidentTimeline
 );
 
