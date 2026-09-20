@@ -3,20 +3,13 @@ const { createAuditLog } = require("../controllers/auditController");
 
 const checkSlaEscalation = async () => {
     try {
-        const currentTime = new Date();
-
         const tickets = await Ticket.find({
-            status: {
-                $nin: ["Resolved", "Escalated"]
-            },
-            slaDeadline: {
-                $lte: currentTime
-            }
+            status: { $nin: ["Resolved", "Escalated"] },
+            slaDeadline: { $lte: new Date() }
         });
 
         for (const ticket of tickets) {
             ticket.status = "Escalated";
-
             await ticket.save();
 
             await createAuditLog({
@@ -27,7 +20,7 @@ const checkSlaEscalation = async () => {
             });
         }
 
-        if (tickets.length > 0) {
+        if (tickets.length) {
             console.log(`${tickets.length} ticket(s) escalated`);
         }
     } catch (error) {
