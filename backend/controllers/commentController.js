@@ -17,7 +17,7 @@ const createComment = async (req, res) => {
         await createAuditLog({
             user: req.user.id,
             action: "Comment Added",
-            ticket: ticket,
+            ticket,
             details: `Comment added: ${message}`
         });
 
