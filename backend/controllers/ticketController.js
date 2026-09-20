@@ -59,12 +59,40 @@ const createTicket = async (req, res) => {
 
 const getTickets = async (req, res) => {
     try {
-        const tickets = await Ticket.find()
+        const {
+            search,
+            page = 1,
+            limit = 5
+        } = req.query;
+
+        const currentPage = Number(page);
+        const itemsPerPage = Number(limit);
+        const skip = (currentPage - 1) * itemsPerPage;
+
+        let filter = {};
+
+        if (search) {
+            filter.title = {
+                $regex: search,
+                $options: "i"
+            };
+        }
+
+        const totalTickets = await Ticket.countDocuments(filter);
+
+        const tickets = await Ticket.find(filter)
             .populate("incident")
             .populate("assignedTo", "name email role")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(itemsPerPage);
 
-        res.json(tickets);
+        res.json({
+            tickets,
+            currentPage,
+            totalPages: Math.ceil(totalTickets / itemsPerPage),
+            totalTickets
+        });
     } catch (error) {
         res.status(500).json({
             message: "Failed to get tickets",
