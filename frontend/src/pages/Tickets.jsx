@@ -4,7 +4,9 @@ import {
     getAssignableUsers,
     assignTicket,
     updateTicketStatus,
-    resolveTicket
+    resolveTicket,
+    getComments,
+    createComment
 } from "../services/api";
 
 function Tickets() {
@@ -13,6 +15,9 @@ function Tickets() {
     const [selectedUsers, setSelectedUsers] = useState({});
     const [selectedStatuses, setSelectedStatuses] = useState({});
     const [resolutions, setResolutions] = useState({});
+    const [comments, setComments] = useState({});
+    const [newComments, setNewComments] = useState({});
+    const [openComments, setOpenComments] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
@@ -57,6 +62,24 @@ function Tickets() {
         }
     };
 
+    const loadTicketComments = async (ticketId) => {
+        try {
+            const data = await getComments(ticketId);
+
+            setComments({
+                ...comments,
+                [ticketId]: data
+            });
+
+            setOpenComments({
+                ...openComments,
+                [ticketId]: true
+            });
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     const handleUserChange = (ticketId, userId) => {
         setSelectedUsers({
             ...selectedUsers,
@@ -75,6 +98,13 @@ function Tickets() {
         setResolutions({
             ...resolutions,
             [ticketId]: resolution
+        });
+    };
+
+    const handleCommentChange = (ticketId, text) => {
+        setNewComments({
+            ...newComments,
+            [ticketId]: text
         });
     };
 
@@ -144,6 +174,33 @@ function Tickets() {
         }
     };
 
+    const handleCreateComment = async (ticketId) => {
+        const text = newComments[ticketId];
+
+        if (!text || !text.trim()) {
+            setError("Please enter a comment");
+            return;
+        }
+
+        try {
+            setError("");
+            setMessage("");
+
+            await createComment(ticketId, text);
+
+            setNewComments({
+                ...newComments,
+                [ticketId]: ""
+            });
+
+            await loadTicketComments(ticketId);
+
+            setMessage("Comment added successfully");
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     return (
         <div className="dashboard">
             <h1>Ticket Management</h1>
@@ -204,6 +261,135 @@ function Tickets() {
                                       ).toLocaleString()
                                     : "Not set"}
                             </p>
+
+                            <div style={{ marginTop: "15px" }}>
+                                <button
+                                    onClick={() =>
+                                        openComments[ticket._id]
+                                            ? setOpenComments({
+                                                  ...openComments,
+                                                  [ticket._id]: false
+                                              })
+                                            : loadTicketComments(ticket._id)
+                                    }
+                                    style={{
+                                        padding: "8px 14px",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        background: "#6b21a8",
+                                        color: "white",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    {openComments[ticket._id]
+                                        ? "Hide Comments"
+                                        : "View Comments"}
+                                </button>
+                            </div>
+
+                            {openComments[ticket._id] && (
+                                <div
+                                    style={{
+                                        marginTop: "15px",
+                                        padding: "15px",
+                                        background: "#0f1117",
+                                        borderRadius: "8px"
+                                    }}
+                                >
+                                    <h4>Comments</h4>
+
+                                    {comments[ticket._id]?.length === 0 && (
+                                        <p
+                                            style={{
+                                                color: "#9ca3af"
+                                            }}
+                                        >
+                                            No comments yet.
+                                        </p>
+                                    )}
+
+                                    {comments[ticket._id]?.map(
+                                        (comment) => (
+                                            <div
+                                                key={comment._id}
+                                                style={{
+                                                    marginBottom: "12px",
+                                                    paddingBottom: "10px",
+                                                    borderBottom:
+                                                        "1px solid #292d38"
+                                                }}
+                                            >
+                                                <strong>
+                                                    {comment.user?.name ||
+                                                        "User"}
+                                                </strong>
+
+                                                <p>
+                                                    {comment.text}
+                                                </p>
+
+                                                <small
+                                                    style={{
+                                                        color: "#6b7280"
+                                                    }}
+                                                >
+                                                    {new Date(
+                                                        comment.createdAt
+                                                    ).toLocaleString()}
+                                                </small>
+                                            </div>
+                                        )
+                                    )}
+
+                                    {canManageTickets && (
+                                        <div>
+                                            <input
+                                                type="text"
+                                                placeholder="Write a comment"
+                                                value={
+                                                    newComments[
+                                                        ticket._id
+                                                    ] || ""
+                                                }
+                                                onChange={(event) =>
+                                                    handleCommentChange(
+                                                        ticket._id,
+                                                        event.target.value
+                                                    )
+                                                }
+                                                style={{
+                                                    padding: "8px",
+                                                    width: "70%",
+                                                    borderRadius: "6px",
+                                                    border:
+                                                        "1px solid #343946",
+                                                    background: "#171a23",
+                                                    color: "white"
+                                                }}
+                                            />
+
+                                            <button
+                                                onClick={() =>
+                                                    handleCreateComment(
+                                                        ticket._id
+                                                    )
+                                                }
+                                                style={{
+                                                    marginLeft: "10px",
+                                                    padding: "8px 14px",
+                                                    border: "none",
+                                                    borderRadius: "6px",
+                                                    background: "#2563eb",
+                                                    color: "white",
+                                                    cursor: "pointer"
+                                                }}
+                                            >
+                                                Add Comment
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {canManageTickets && (
                                 <div style={{ marginTop: "15px" }}>
@@ -325,7 +511,8 @@ function Tickets() {
                                                 padding: "8px",
                                                 width: "300px",
                                                 borderRadius: "6px",
-                                                border: "1px solid #343946",
+                                                border:
+                                                    "1px solid #343946",
                                                 background: "#0f1117",
                                                 color: "white"
                                             }}

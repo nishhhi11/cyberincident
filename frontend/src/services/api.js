@@ -225,3 +225,55 @@ export const resolveTicket = async (ticketId, resolution) => {
 
     return data;
 };
+
+export const getComments = async (ticketId) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        `${API_URL}/comments/${ticketId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to get comments"
+        );
+    }
+
+    return data;
+};
+
+export const createComment = async (ticketId, text) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        `${API_URL}/comments`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                ticket: ticketId,
+                message: text
+            })
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to add comment"
+        );
+    }
+
+    return data;
+};
