@@ -127,6 +127,37 @@ const getIncidentById = async (req, res) => {
     }
 };
 
+const getSimilarIncidents = async (req, res) => {
+    try {
+        const incident = await Incident.findById(req.params.id);
+
+        if (!incident) {
+            return res.status(404).json({
+                message: "Incident not found"
+            });
+        }
+
+        const similarIncidents = await Incident.find({
+            _id: { $ne: incident._id },
+            category: incident.category,
+            location: incident.location
+        })
+            .populate("reportedBy", "name email role")
+            .sort({ createdAt: -1 });
+
+        res.json({
+            incident: incident.fingerprint,
+            count: similarIncidents.length,
+            similarIncidents
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to find similar incidents",
+            error: error.message
+        });
+    }
+};
+
 const updateIncident = async (req, res) => {
     try {
         const {
@@ -241,6 +272,7 @@ module.exports = {
     createIncident,
     getIncidents,
     getIncidentById,
+    getSimilarIncidents,
     updateIncident,
     deleteIncident,
     getIncidentStats

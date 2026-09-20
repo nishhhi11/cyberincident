@@ -4,6 +4,7 @@ const {
     createIncident,
     getIncidents,
     getIncidentById,
+    getSimilarIncidents,
     updateIncident,
     deleteIncident,
     getIncidentStats
@@ -47,6 +48,18 @@ router.get(
         "Admin"
     ),
     getIncidentStats
+);
+
+router.get(
+    "/:id/similar",
+    protect,
+    allowRoles(
+        "Employee",
+        "Support Agent",
+        "Security Analyst",
+        "Admin"
+    ),
+    getSimilarIncidents
 );
 
 router.get(
