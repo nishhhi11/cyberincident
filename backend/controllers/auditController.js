@@ -9,13 +9,7 @@ const createAuditLog = async ({
   details = ""
 }) => {
   try {
-    await AuditLog.create({
-      user,
-      action,
-      ticket,
-      incident,
-      details
-    });
+    await AuditLog.create({ user, action, ticket, incident, details });
   } catch (error) {
     console.error("Audit log failed:", error.message);
   }
@@ -44,7 +38,7 @@ const getIncidentTimeline = async (req, res) => {
       incident: req.params.incidentId
     }).select("_id");
 
-    const ticketIds = tickets.map((ticket) => ticket._id);
+    const ticketIds = tickets.map(ticket => ticket._id);
 
     const logs = await AuditLog.find({
       $or: [
