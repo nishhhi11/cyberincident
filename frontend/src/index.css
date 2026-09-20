@@ -1,24 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* DARK MODE - Black and Red */
+  /* DARK MODE - Charcoal and Red */
   --bg: #080808;
-  --bg-grid: transparent;
-  
-  --text: #F5F5F5;
-  --muted: #8A8A8A;
-  --heading: #FFFFFF;
-  
+  --panel: #111111;
   --card: #151515;
   --card-hover: #1A1A1A;
+  
+  --text: #F5F5F5;
+  --heading: #FFFFFF;
+  --muted: #8A8A8A;
   
   --border: #292929;
   --border-bright: #3D3D3D;
   
   --primary: #FF1A14;
+  --primary-hover: #E61510;
   --primary-light: #C40000;
   --primary-glow: rgba(255, 26, 20, 0.15);
   --soft-red: #2A0D0D;
+  
+  --input: #111111;
   
   --success: #16A34A;
   --warning: #D97706;
@@ -29,24 +31,26 @@
 }
 
 .light-mode {
-  /* LIGHT MODE - White and Red */
-  --bg: #eef0f2;
-  --bg-grid: transparent;
-  
-  --text: #171717;
-  --muted: #737373;
-  --heading: #171717;
-  
+  /* LIGHT MODE - Gray and Red */
+  --bg: #EEF0F2;
+  --panel: #FFFFFF;
   --card: #FFFFFF;
   --card-hover: #FAFAFA;
   
-  --border: #E5E5E5;
-  --border-bright: #D4D4D4;
+  --text: #171717;
+  --heading: #171717;
+  --muted: #737373;
+  
+  --border: #D9DEE3;
+  --border-bright: #C5CBD1;
   
   --primary: #E10600;
+  --primary-hover: #C90500;
   --primary-light: #B80000;
   --primary-glow: rgba(225, 6, 0, 0.12);
   --soft-red: #FFF1F0;
+  
+  --input: #FFFFFF;
   
   --success: #16A34A;
   --warning: #D97706;
@@ -71,8 +75,6 @@ body {
   
   /* Premium Cyber Grid Background */
   background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 30px 30px;
-  background-blend-mode: overlay;
   background-size: 40px 40px;
   background-position: center center;
 }
@@ -94,12 +96,6 @@ button {
 }
 
 /* Animations */
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 0 0 var(--primary-glow); }
-  70% { box-shadow: 0 0 10px 4px rgba(0, 240, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); }
-}
-
 @keyframes liveStatusPulse {
   0% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px var(--success); }
   50% { opacity: 0.5; transform: scale(0.9); box-shadow: 0 0 2px var(--success); }
@@ -111,5 +107,5 @@ button {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
-  border-radius: 8px;
+  border-radius: 12px;
 }

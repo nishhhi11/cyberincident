@@ -142,11 +142,12 @@ function App() {
 
             <button
               className="theme-button"
+              title="Toggle Theme"
               onClick={() =>
                 setDarkMode(!darkMode)
               }
             >
-              {darkMode ? "☀️" : "🌙"}
+              {darkMode ? "☀" : "🌙"}
             </button>
 
             <button

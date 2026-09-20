@@ -220,30 +220,30 @@ function Dashboard() {
     );
 
     const renderAuditFeed = () => (
-        <section className="activity-panel" style={{marginTop: '25px'}}>
+        <section className="activity-panel" className="mt-25">
             <div className="panel-heading">
                 <div>
                     <span className="panel-label">SYSTEM LOGS</span>
                     <h2>Recent Audit Activity</h2>
                 </div>
             </div>
-            <div className="incident-list-dense" style={{ marginTop: '20px' }}>
+            <div className="incident-list-dense" className="mt-20">
                 {auditLogs.length === 0 ? (
                     <div className="empty-state">No audit logs found.</div>
                 ) : (
                     auditLogs.slice(0, 6).map((log) => (
-                        <div key={log._id} className="dense-incident-row" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)', borderRadius: '0' }}>
+                        <div key={log._id} className="dense-incident-row audit-row">
                             <div className="dense-incident-main">
                                 <div>
-                                    <div className="dense-title" style={{ fontSize: '0.95rem' }}>{log.action}</div>
+                                    <div className="dense-title" className="text-md">{log.action}</div>
                                     <div className="dense-subtitle">{log.details}</div>
                                 </div>
                             </div>
                             <div className="dense-incident-meta">
-                                <span className="dense-subtitle" style={{ color: 'var(--primary)' }}>
+                                <span className="dense-subtitle" className="text-primary">
                                     {log.performedBy?.role || "System"}
                                 </span>
-                                <span className="dense-subtitle" style={{ marginLeft: '15px' }}>
+                                <span className="dense-subtitle" className="ml-15">
                                     {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
@@ -291,24 +291,24 @@ function Dashboard() {
                             <h2>Incident Status</h2>
                         </div>
                     </div>
-                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot"></span> Open</span>
+                    <div className="status-list">
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot"></span> Open</span>
                             <strong>{myOpen < 10 ? `0${myOpen}` : myOpen}</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot" style={{ background: 'var(--primary)' }}></span> Resolved</span>
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot" className="incident-dot resolved"></span> Resolved</span>
                             <strong>{myResolved < 10 ? `0${myResolved}` : myResolved}</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot critical"></span> Escalated</span>
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot critical"></span> Escalated</span>
                             <strong>{myEscalated < 10 ? `0${myEscalated}` : myEscalated}</strong>
                         </div>
                     </div>
                 </section>
             </div>
             
-            <section className="activity-panel" style={{marginTop: '25px'}}>
+            <section className="activity-panel" className="mt-25">
                 <div className="panel-heading">
                     <div>
                         <span className="panel-label">ACTIVITY STREAM</span>
@@ -375,24 +375,24 @@ function Dashboard() {
                             <h2>SLA Status</h2>
                         </div>
                     </div>
-                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot"></span> On Track</span>
+                    <div className="status-list">
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot"></span> On Track</span>
                             <strong>{ticketsOnTrack < 10 ? `0${ticketsOnTrack}` : ticketsOnTrack}</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot" style={{ background: '#f5a623', boxShadow: '0 0 10px rgba(245, 166, 35, 0.4)' }}></span> Due Soon</span>
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot" className="incident-dot warning"></span> Due Soon</span>
                             <strong>{ticketsDueSoon < 10 ? `0${ticketsDueSoon}` : ticketsDueSoon}</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot critical"></span> Escalated</span>
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot critical"></span> Escalated</span>
                             <strong>{ticketsEscalated < 10 ? `0${ticketsEscalated}` : ticketsEscalated}</strong>
                         </div>
                     </div>
                 </section>
             </div>
             
-            <section className="activity-panel" style={{marginTop: '25px'}}>
+            <section className="activity-panel" className="mt-25">
                 <div className="panel-heading">
                     <div>
                         <span className="panel-label">WORKFLOW</span>
@@ -459,28 +459,28 @@ function Dashboard() {
                             <h2>Threat Status</h2>
                         </div>
                     </div>
-                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot critical"></span> Critical</span>
+                    <div className="status-list">
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot critical"></span> Critical</span>
                             <strong>{criticalCount < 10 ? `0${criticalCount}` : criticalCount}</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot" style={{ background: '#f5a623', boxShadow: '0 0 10px rgba(245, 166, 35, 0.4)' }}></span> High</span>
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot" className="incident-dot warning"></span> High</span>
                             <strong>{highRiskCount < 10 ? `0${highRiskCount}` : highRiskCount}</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot"></span> Medium</span>
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot"></span> Medium</span>
                             <strong>{mediumCount < 10 ? `0${mediumCount}` : mediumCount}</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><span className="incident-dot" style={{ background: 'var(--muted)' }}></span> Low</span>
+                        <div className="status-row">
+                            <span className="status-label"><span className="incident-dot" className="incident-dot muted"></span> Low</span>
                             <strong>{lowCount < 10 ? `0${lowCount}` : lowCount}</strong>
                         </div>
                     </div>
                 </section>
             </div>
             
-            <section className="activity-panel" style={{marginTop: '25px'}}>
+            <section className="activity-panel" className="mt-25">
                 <div className="panel-heading">
                     <div>
                         <span className="panel-label">INTELLIGENCE</span>
@@ -488,21 +488,21 @@ function Dashboard() {
                     </div>
                 </div>
                 
-                <div style={{ marginTop: '20px', background: 'var(--bg)', borderRadius: '6px', border: '1px solid var(--border)' }}>
-                    <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                <div className="intelligence-table-wrapper">
+                    <table className="intelligence-table">
                         <thead>
-                            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                                <th style={{ padding: '12px', color: 'var(--muted)', fontSize: '0.85rem' }}>Fingerprint</th>
-                                <th style={{ padding: '12px', color: 'var(--muted)', fontSize: '0.85rem' }}>Similar Incidents</th>
-                                <th style={{ padding: '12px', color: 'var(--muted)', fontSize: '0.85rem' }}>Risk</th>
+                            <tr >
+                                <th >Fingerprint</th>
+                                <th >Similar Incidents</th>
+                                <th >Risk</th>
                             </tr>
                         </thead>
                         <tbody>
                             {incidents.filter(i => i.fingerprint).slice(0, 3).map((inc, i) => (
-                                <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '12px', fontFamily: 'monospace', color: 'var(--primary)' }}>{inc.fingerprint}</td>
-                                    <td style={{ padding: '12px' }}>{Math.floor(Math.random() * 4) + 1}</td>
-                                    <td style={{ padding: '12px' }}>
+                                <tr key={i} >
+                                    <td className="fingerprint-cell">{inc.fingerprint}</td>
+                                    <td >{Math.floor(Math.random() * 4) + 1}</td>
+                                    <td >
                                         <span className={`priority-badge ${getPriorityClass(inc.riskLevel || inc.priority)}`}>
                                             {inc.riskLevel || inc.priority}
                                         </span>
@@ -551,14 +551,14 @@ function Dashboard() {
                             <h2>System Status</h2>
                         </div>
                     </div>
-                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="status-list">
+                        <div className="status-label">
                             <span className="incident-dot"></span> <strong>Monitoring</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="status-label">
                             <span className="incident-dot"></span> <strong>SLA Tracking</strong>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="status-label">
                             <span className="incident-dot"></span> <strong>Audit Logging</strong>
                         </div>
                     </div>
@@ -607,12 +607,12 @@ function Dashboard() {
                         {getDashboardEyebrow()}
                     </span>
                     <h1>{getDashboardTitle()}</h1>
-                    <p style={{ color: 'var(--muted)', fontSize: '0.95rem' }}>
+                    <p className="dashboard-subtitle">
                         {getDashboardSubtitle()}
                     </p>
                 </div>
                 <div className="live-indicator">
-                    <span className="incident-dot live" style={{marginRight: '8px'}}></span>
+                    <span className="incident-dot live" className="incident-dot live mr-8"></span>
                     {getSystemStatusLabel()}
                 </div>
             </div>
