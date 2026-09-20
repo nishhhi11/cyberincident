@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const incidentSchema = new mongoose.Schema(
     {
+        fingerprint: {
+            type: String,
+            unique: true,
+            required: true
+        },
+
         title: {
             type: String,
             required: true

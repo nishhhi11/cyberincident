@@ -1,6 +1,43 @@
 const Incident = require("../models/Incident");
 const { createAuditLog } = require("./auditController");
 
+const getFingerprintPrefix = (category) => {
+    if (category === "Phishing") {
+        return "PHISH";
+    }
+
+    if (category === "Malware") {
+        return "MALW";
+    }
+
+    if (category === "Account/Security") {
+        return "ACCT";
+    }
+
+    if (category === "Suspicious Activity") {
+        return "SUSP";
+    }
+
+    if (category === "Network Issue") {
+        return "NET";
+    }
+
+    return "OTHER";
+};
+
+const generateFingerprint = async (category) => {
+    const prefix = getFingerprintPrefix(category);
+    const year = new Date().getFullYear().toString().slice(-2);
+
+    const count = await Incident.countDocuments({
+        category
+    });
+
+    const number = String(count + 1).padStart(3, "0");
+
+    return `${prefix}-${year}-${number}`;
+};
+
 const createIncident = async (req, res) => {
     try {
         const {
@@ -22,7 +59,10 @@ const createIncident = async (req, res) => {
             priority = "Medium";
         }
 
+        const fingerprint = await generateFingerprint(category);
+
         const incident = await Incident.create({
+            fingerprint,
             title,
             category,
             description,
