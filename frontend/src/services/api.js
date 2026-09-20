@@ -330,3 +330,26 @@ export const uploadAttachment = async (ticketId, file) => {
 
     return data;
 };
+
+export const getIncidentTimeline = async (incidentId) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+        `${API_URL}/audit/incident/${incidentId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || "Failed to get incident timeline"
+        );
+    }
+
+    return data;
+};

@@ -8,7 +8,8 @@ import {
     getComments,
     createComment,
     getAttachments,
-    uploadAttachment
+    uploadAttachment,
+    getIncidentTimeline
 } from "../services/api";
 
 function Tickets() {
@@ -22,6 +23,8 @@ function Tickets() {
     const [openComments, setOpenComments] = useState({});
     const [attachments, setAttachments] = useState({});
     const [selectedFiles, setSelectedFiles] = useState({});
+    const [timelines, setTimelines] = useState({});
+    const [openTimelines, setOpenTimelines] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
@@ -91,6 +94,24 @@ function Tickets() {
             setAttachments({
                 ...attachments,
                 [ticketId]: data
+            });
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const loadIncidentTimeline = async (incidentId, ticketId) => {
+        try {
+            const data = await getIncidentTimeline(incidentId);
+
+            setTimelines({
+                ...timelines,
+                [ticketId]: data.timeline
+            });
+
+            setOpenTimelines({
+                ...openTimelines,
+                [ticketId]: true
             });
         } catch (error) {
             setError(error.message);
@@ -438,6 +459,75 @@ function Tickets() {
                                                 Add Comment
                                             </button>
                                         </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div style={{ marginTop: "15px" }}>
+                                <button
+                                    onClick={() =>
+                                        openTimelines[ticket._id]
+                                            ? setOpenTimelines({
+                                                  ...openTimelines,
+                                                  [ticket._id]: false
+                                              })
+                                            : loadIncidentTimeline(
+                                                  ticket.incident?._id,
+                                                  ticket._id
+                                              )
+                                    }
+                                    style={{
+                                        padding: "8px 14px",
+                                        border: "none",
+                                        borderRadius: "6px",
+                                        background: "#7c3aed",
+                                        color: "white",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    {openTimelines[ticket._id]
+                                        ? "Hide Timeline"
+                                        : "Investigation Timeline"}
+                                </button>
+                            </div>
+
+                            {openTimelines[ticket._id] && (
+                                <div
+                                    style={{
+                                        marginTop: "15px",
+                                        padding: "15px",
+                                        background: "#0f1117",
+                                        borderRadius: "8px"
+                                    }}
+                                >
+                                    <h4>Investigation Timeline</h4>
+
+                                    {timelines[ticket._id]?.length === 0 ? (
+                                        <p style={{ color: "#9ca3af" }}>
+                                            No activity found.
+                                        </p>
+                                    ) : (
+                                        timelines[ticket._id]?.map((log) => (
+                                            <div
+                                                key={log._id}
+                                                style={{
+                                                    marginBottom: "12px",
+                                                    paddingBottom: "10px",
+                                                    borderBottom: "1px solid #292d38"
+                                                }}
+                                            >
+                                                <strong>{log.action}</strong>
+
+                                                <p>{log.details}</p>
+
+                                                <small style={{ color: "#6b7280" }}>
+                                                    {log.user?.name || "System"} ·{" "}
+                                                    {new Date(
+                                                        log.createdAt
+                                                    ).toLocaleString()}
+                                                </small>
+                                            </div>
+                                        ))
                                     )}
                                 </div>
                             )}
