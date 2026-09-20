@@ -3,7 +3,8 @@ import {
     getTickets,
     getAssignableUsers,
     assignTicket,
-    updateTicketStatus
+    updateTicketStatus,
+    resolveTicket
 } from "../services/api";
 
 function Tickets() {
@@ -11,6 +12,7 @@ function Tickets() {
     const [users, setUsers] = useState([]);
     const [selectedUsers, setSelectedUsers] = useState({});
     const [selectedStatuses, setSelectedStatuses] = useState({});
+    const [resolutions, setResolutions] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
@@ -69,6 +71,13 @@ function Tickets() {
         });
     };
 
+    const handleResolutionChange = (ticketId, resolution) => {
+        setResolutions({
+            ...resolutions,
+            [ticketId]: resolution
+        });
+    };
+
     const handleAssign = async (ticketId) => {
         const userId = selectedUsers[ticketId];
 
@@ -106,6 +115,28 @@ function Tickets() {
             await updateTicketStatus(ticketId, status);
 
             setMessage("Ticket status updated successfully");
+
+            await loadTickets();
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleResolve = async (ticketId) => {
+        const resolution = resolutions[ticketId];
+
+        if (!resolution) {
+            setError("Please enter a resolution first");
+            return;
+        }
+
+        try {
+            setError("");
+            setMessage("");
+
+            await resolveTicket(ticketId, resolution);
+
+            setMessage("Ticket resolved successfully");
 
             await loadTickets();
         } catch (error) {
@@ -274,6 +305,47 @@ function Tickets() {
                                             }}
                                         >
                                             Update Status
+                                        </button>
+                                    </div>
+
+                                    <div style={{ marginTop: "10px" }}>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter resolution"
+                                            value={
+                                                resolutions[ticket._id] || ""
+                                            }
+                                            onChange={(event) =>
+                                                handleResolutionChange(
+                                                    ticket._id,
+                                                    event.target.value
+                                                )
+                                            }
+                                            style={{
+                                                padding: "8px",
+                                                width: "300px",
+                                                borderRadius: "6px",
+                                                border: "1px solid #343946",
+                                                background: "#0f1117",
+                                                color: "white"
+                                            }}
+                                        />
+
+                                        <button
+                                            onClick={() =>
+                                                handleResolve(ticket._id)
+                                            }
+                                            style={{
+                                                marginLeft: "10px",
+                                                padding: "8px 14px",
+                                                border: "none",
+                                                borderRadius: "6px",
+                                                background: "#16a34a",
+                                                color: "white",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Resolve
                                         </button>
                                     </div>
                                 </div>
