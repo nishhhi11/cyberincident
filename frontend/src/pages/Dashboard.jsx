@@ -104,6 +104,7 @@ function Dashboard() {
                             </div>
 
                             <div>
+                                <p>Fingerprint: {incident.fingerprint}</p>
                                 <p>Priority: {incident.priority}</p>
                                 <p>Risk Level: {incident.riskLevel}</p>
                                 <p>Status: {incident.status}</p>
