@@ -1,4 +1,5 @@
 const Attachment = require("../models/Attachment");
+const { createAuditLog } = require("./auditController");
 
 const uploadAttachment = async (req, res) => {
     try {
@@ -16,6 +17,13 @@ const uploadAttachment = async (req, res) => {
             fileName: req.file.originalname,
             filePath: req.file.path,
             fileType: req.file.mimetype
+        });
+
+        await createAuditLog({
+            user: req.user.id,
+            action: "Attachment Uploaded",
+            ticket: ticket,
+            details: `Attachment uploaded: ${req.file.originalname}`
         });
 
         res.status(201).json({

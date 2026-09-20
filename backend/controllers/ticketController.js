@@ -1,6 +1,7 @@
 const Ticket = require("../models/Ticket");
 const Incident = require("../models/Incident");
 const User = require("../models/User");
+const { createAuditLog } = require("./auditController");
 
 const getSlaHours = (priority) => {
     if (priority === "Critical") {
@@ -106,6 +107,13 @@ const assignTicket = async (req, res) => {
 
         await ticket.save();
 
+        await createAuditLog({
+            user: req.user.id,
+            action: "Ticket Assigned",
+            ticket: ticket._id,
+            details: `Ticket assigned to ${user.name}`
+        });
+
         res.json({
             message: "Ticket assigned successfully",
             ticket
@@ -144,9 +152,18 @@ const updateTicketStatus = async (req, res) => {
             });
         }
 
+        const oldStatus = ticket.status;
+
         ticket.status = status;
 
         await ticket.save();
+
+        await createAuditLog({
+            user: req.user.id,
+            action: "Ticket Status Changed",
+            ticket: ticket._id,
+            details: `Status changed from ${oldStatus} to ${status}`
+        });
 
         res.json({
             message: "Ticket status updated successfully",
@@ -183,6 +200,13 @@ const resolveTicket = async (req, res) => {
         ticket.resolvedAt = new Date();
 
         await ticket.save();
+
+        await createAuditLog({
+            user: req.user.id,
+            action: "Ticket Resolved",
+            ticket: ticket._id,
+            details: `Ticket resolved: ${resolution}`
+        });
 
         res.json({
             message: "Ticket resolved successfully",

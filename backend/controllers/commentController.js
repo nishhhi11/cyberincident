@@ -1,4 +1,5 @@
 const Comment = require("../models/Comment");
+const { createAuditLog } = require("./auditController");
 
 const createComment = async (req, res) => {
     try {
@@ -12,6 +13,13 @@ const createComment = async (req, res) => {
 
         const savedComment = await Comment.findById(comment._id)
             .populate("user", "name email role");
+
+        await createAuditLog({
+            user: req.user.id,
+            action: "Comment Added",
+            ticket: ticket,
+            details: `Comment added: ${message}`
+        });
 
         res.status(201).json({
             message: "Comment added successfully",
