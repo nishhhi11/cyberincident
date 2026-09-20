@@ -170,10 +170,38 @@ const deleteIncident = async (req, res) => {
     }
 };
 
+const getIncidentStats = async (req, res) => {
+    try {
+        const stats = await Incident.aggregate([
+            {
+                $group: {
+                    _id: "$status",
+                    count: {
+                        $sum: 1
+                    }
+                }
+            },
+            {
+                $sort: {
+                    _id: 1
+                }
+            }
+        ]);
+
+        res.json(stats);
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to get incident statistics",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createIncident,
     getIncidents,
     getIncidentById,
     updateIncident,
-    deleteIncident
+    deleteIncident,
+    getIncidentStats
 };
