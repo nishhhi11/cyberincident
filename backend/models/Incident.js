@@ -46,6 +46,12 @@ const incidentSchema = new mongoose.Schema(
             enum: ["Low", "Medium", "High", "Critical"]
         },
 
+        riskLevel: {
+            type: String,
+            default: "Low",
+            enum: ["Low", "Medium", "High", "Critical"]
+        },
+
         status: {
             type: String,
             default: "Open",

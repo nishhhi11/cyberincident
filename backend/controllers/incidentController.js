@@ -38,6 +38,22 @@ const generateFingerprint = async (category) => {
     return `${prefix}-${year}-${number}`;
 };
 
+const calculateRiskLevel = (impact, urgency) => {
+    if (impact === "High" && urgency === "High") {
+        return "Critical";
+    }
+
+    if (impact === "High" || urgency === "High") {
+        return "High";
+    }
+
+    if (impact === "Medium" || urgency === "Medium") {
+        return "Medium";
+    }
+
+    return "Low";
+};
+
 const createIncident = async (req, res) => {
     try {
         const {
@@ -59,6 +75,8 @@ const createIncident = async (req, res) => {
             priority = "Medium";
         }
 
+        const riskLevel = calculateRiskLevel(impact, urgency);
+
         const fingerprint = await generateFingerprint(category);
 
         const incident = await Incident.create({
@@ -70,6 +88,7 @@ const createIncident = async (req, res) => {
             impact,
             urgency,
             priority,
+            riskLevel,
             reportedBy: req.user.id
         });
 
@@ -202,6 +221,11 @@ const updateIncident = async (req, res) => {
             } else {
                 incident.priority = "Low";
             }
+
+            incident.riskLevel = calculateRiskLevel(
+                newImpact,
+                newUrgency
+            );
         }
 
         await incident.save();
