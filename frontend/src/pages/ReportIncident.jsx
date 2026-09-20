@@ -54,12 +54,13 @@ function ReportIncident() {
             </p>
 
             <form
-                className="incident-form"
+                className="incident-form glass-panel"
                 onSubmit={handleSubmit}
             >
                 <label>Incident Title</label>
 
                 <input
+                    className="cyber-input"
                     type="text"
                     name="title"
                     value={formData.title}
@@ -71,6 +72,7 @@ function ReportIncident() {
                 <label>Category</label>
 
                 <select
+                    className="cyber-input"
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
@@ -92,6 +94,7 @@ function ReportIncident() {
                 <label>Description</label>
 
                 <textarea
+                    className="cyber-input"
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
@@ -103,6 +106,7 @@ function ReportIncident() {
                 <label>Location</label>
 
                 <input
+                    className="cyber-input"
                     type="text"
                     name="location"
                     value={formData.location}
@@ -114,6 +118,7 @@ function ReportIncident() {
                 <label>Impact</label>
 
                 <select
+                    className="cyber-input"
                     name="impact"
                     value={formData.impact}
                     onChange={handleChange}
@@ -126,6 +131,7 @@ function ReportIncident() {
                 <label>Urgency</label>
 
                 <select
+                    className="cyber-input"
                     name="urgency"
                     value={formData.urgency}
                     onChange={handleChange}
@@ -135,7 +141,7 @@ function ReportIncident() {
                     <option value="High">High</option>
                 </select>
 
-                <button type="submit">
+                <button className="cyber-button primary" type="submit">
                     Report Incident
                 </button>
 

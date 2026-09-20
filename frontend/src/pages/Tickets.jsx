@@ -274,15 +274,15 @@ function Tickets() {
     };
 
     return (
-        <div className="dashboard">
+        <div className="cyber-dashboard">
             <h1>Ticket Management</h1>
 
-            <p style={{ color: "#9ca3af" }}>
+            <p style={{ color: "var(--muted)" }}>
                 Manage cybersecurity incident tickets
             </p>
 
             {message && (
-                <p style={{ color: "#4ade80" }}>
+                <p style={{ color: "var(--success)" }}>
                     {message}
                 </p>
             )}
@@ -290,51 +290,41 @@ function Tickets() {
             {loading && <p>Loading tickets...</p>}
 
             {error && (
-                <p style={{ color: "#f87171" }}>
+                <p style={{ color: "var(--danger)" }}>
                     {error}
                 </p>
             )}
 
             {!loading && !error && tickets.length === 0 && (
-                <p style={{ color: "#9ca3af" }}>
+                <p style={{ color: "var(--muted)" }}>
                     No tickets found.
                 </p>
             )}
 
             <div style={{ marginTop: "30px" }}>
                 {tickets.map((ticket) => (
-                    <div
-                        key={ticket._id}
-                        className="incident-card"
-                    >
-                        <div>
-                            <h3>{ticket.title}</h3>
+                    <div key={ticket._id} className="ticket-card glass-panel">
+                        <div className="ticket-header">
+                            <div className="ticket-title-group">
+                                <div className={`incident-dot ${ticket.priority === 'Critical' ? 'critical' : ''}`}></div>
+                                <h3>{ticket.title}</h3>
+                            </div>
+                            <div className="ticket-badges">
+                                <span className={`priority-badge priority-${ticket.priority?.toLowerCase()}`}>
+                                    {ticket.priority}
+                                </span>
+                                <span className="status-badge">
+                                    {ticket.status}
+                                </span>
+                            </div>
+                        </div>
 
-                            <p>
-                                Priority: {ticket.priority}
-                            </p>
-
-                            <p>
-                                Status: {ticket.status}
-                            </p>
-
-                            <p>
-                                Assigned To:{" "}
-                                {ticket.assignedTo
-                                    ? ticket.assignedTo.name
-                                    : "Not assigned"}
-                            </p>
-
-                            <p>
-                                SLA Deadline:{" "}
-                                {ticket.slaDeadline
-                                    ? new Date(
-                                          ticket.slaDeadline
-                                      ).toLocaleString()
-                                    : "Not set"}
-                            </p>
-
-                            <div style={{ marginTop: "15px" }}>
+                        <div className="ticket-meta">
+                            <span><strong>Assigned:</strong> {ticket.assignedTo ? ticket.assignedTo.name : "Not assigned"}</span>
+                            <span><strong>SLA Deadline:</strong> {ticket.slaDeadline ? new Date(ticket.slaDeadline).toLocaleString() : "Not set"}</span>
+                        </div>
+                        
+                        <div className="ticket-actions">
                                 <button
                                     onClick={() =>
                                         openComments[ticket._id]
@@ -344,36 +334,23 @@ function Tickets() {
                                               })
                                             : loadTicketComments(ticket._id)
                                     }
-                                    style={{
-                                        padding: "8px 14px",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        background: "#6b21a8",
-                                        color: "white",
-                                        cursor: "pointer"
-                                    }}
+                                    className="cyber-button"
                                 >
                                     {openComments[ticket._id]
                                         ? "Hide Comments"
                                         : "View Comments"}
                                 </button>
-                            </div>
 
                             {openComments[ticket._id] && (
                                 <div
-                                    style={{
-                                        marginTop: "15px",
-                                        padding: "15px",
-                                        background: "#0f1117",
-                                        borderRadius: "8px"
-                                    }}
+                                    className="inner-panel"
                                 >
                                     <h4>Comments</h4>
 
                                     {comments[ticket._id]?.length === 0 && (
                                         <p
                                             style={{
-                                                color: "#9ca3af"
+                                                color: "var(--muted)"
                                             }}
                                         >
                                             No comments yet.
@@ -384,12 +361,7 @@ function Tickets() {
                                         (comment) => (
                                             <div
                                                 key={comment._id}
-                                                style={{
-                                                    marginBottom: "12px",
-                                                    paddingBottom: "10px",
-                                                    borderBottom:
-                                                        "1px solid #292d38"
-                                                }}
+                                                className="ticket-divider"
                                             >
                                                 <strong>
                                                     {comment.user?.name ||
@@ -402,7 +374,7 @@ function Tickets() {
 
                                                 <small
                                                     style={{
-                                                        color: "#6b7280"
+                                                        color: "var(--muted)"
                                                     }}
                                                 >
                                                     {new Date(
@@ -429,15 +401,7 @@ function Tickets() {
                                                         event.target.value
                                                     )
                                                 }
-                                                style={{
-                                                    padding: "8px",
-                                                    width: "70%",
-                                                    borderRadius: "6px",
-                                                    border:
-                                                        "1px solid #343946",
-                                                    background: "#171a23",
-                                                    color: "white"
-                                                }}
+                                                className="cyber-input" style={{ width: "70%" }}
                                             />
 
                                             <button
@@ -446,15 +410,7 @@ function Tickets() {
                                                         ticket._id
                                                     )
                                                 }
-                                                style={{
-                                                    marginLeft: "10px",
-                                                    padding: "8px 14px",
-                                                    border: "none",
-                                                    borderRadius: "6px",
-                                                    background: "#2563eb",
-                                                    color: "white",
-                                                    cursor: "pointer"
-                                                }}
+                                                className="cyber-button primary" style={{ marginLeft: "10px" }}
                                             >
                                                 Add Comment
                                             </button>
@@ -463,7 +419,6 @@ function Tickets() {
                                 </div>
                             )}
 
-                            <div style={{ marginTop: "15px" }}>
                                 <button
                                     onClick={() =>
                                         openTimelines[ticket._id]
@@ -476,51 +431,34 @@ function Tickets() {
                                                   ticket._id
                                               )
                                     }
-                                    style={{
-                                        padding: "8px 14px",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        background: "#7c3aed",
-                                        color: "white",
-                                        cursor: "pointer"
-                                    }}
+                                    className="cyber-button"
                                 >
                                     {openTimelines[ticket._id]
                                         ? "Hide Timeline"
                                         : "Investigation Timeline"}
                                 </button>
-                            </div>
 
                             {openTimelines[ticket._id] && (
                                 <div
-                                    style={{
-                                        marginTop: "15px",
-                                        padding: "15px",
-                                        background: "#0f1117",
-                                        borderRadius: "8px"
-                                    }}
+                                    className="inner-panel"
                                 >
                                     <h4>Investigation Timeline</h4>
 
                                     {timelines[ticket._id]?.length === 0 ? (
-                                        <p style={{ color: "#9ca3af" }}>
+                                        <p style={{ color: "var(--muted)" }}>
                                             No activity found.
                                         </p>
                                     ) : (
                                         timelines[ticket._id]?.map((log) => (
                                             <div
                                                 key={log._id}
-                                                style={{
-                                                    marginBottom: "12px",
-                                                    paddingBottom: "10px",
-                                                    borderBottom: "1px solid #292d38"
-                                                }}
+                                                className="ticket-divider"
                                             >
                                                 <strong>{log.action}</strong>
 
                                                 <p>{log.details}</p>
 
-                                                <small style={{ color: "#6b7280" }}>
+                                                <small style={{ color: "var(--muted)" }}>
                                                     {log.user?.name || "System"} ·{" "}
                                                     {new Date(
                                                         log.createdAt
@@ -532,24 +470,15 @@ function Tickets() {
                                 </div>
                             )}
 
-                            <div style={{ marginTop: "15px" }}>
-                                <h4>Attachments</h4>
-
                                 <button
                                     onClick={() =>
                                         loadAttachments(ticket._id)
                                     }
-                                    style={{
-                                        padding: "8px 14px",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        background: "#4b5563",
-                                        color: "white",
-                                        cursor: "pointer"
-                                    }}
+                                    className="cyber-button"
                                 >
                                     View Attachments
                                 </button>
+                        </div>
 
                                 {attachments[ticket._id] && (
                                     <div style={{ marginTop: "10px" }}>
@@ -557,7 +486,7 @@ function Tickets() {
                                         0 ? (
                                             <p
                                                 style={{
-                                                    color: "#9ca3af"
+                                                    color: "var(--muted)"
                                                 }}
                                             >
                                                 No attachments yet.
@@ -597,26 +526,16 @@ function Tickets() {
                                             onClick={() =>
                                                 handleUpload(ticket._id)
                                             }
-                                            style={{
-                                                marginLeft: "10px",
-                                                padding: "8px 14px",
-                                                border: "none",
-                                                borderRadius: "6px",
-                                                background: "#2563eb",
-                                                color: "white",
-                                                cursor: "pointer"
-                                            }}
+                                            className="cyber-button primary" style={{ marginLeft: "10px" }}
                                         >
                                             Upload
                                         </button>
                                     </div>
                                 )}
-                            </div>
 
                             {canManageTickets && (
-                                <div style={{ marginTop: "15px" }}>
-                                    <select
-                                        value={
+                                <div className="management-bar">
+                                    <select className="cyber-input" value={
                                             selectedUsers[ticket._id] || ""
                                         }
                                         onChange={(event) =>
@@ -645,22 +564,13 @@ function Tickets() {
                                         onClick={() =>
                                             handleAssign(ticket._id)
                                         }
-                                        style={{
-                                            marginLeft: "10px",
-                                            padding: "8px 14px",
-                                            border: "none",
-                                            borderRadius: "6px",
-                                            background: "#2563eb",
-                                            color: "white",
-                                            cursor: "pointer"
-                                        }}
+                                        className="cyber-button primary" style={{ marginLeft: "10px" }}
                                     >
                                         Assign
                                     </button>
 
                                     <div style={{ marginTop: "10px" }}>
-                                        <select
-                                            value={
+                                        <select className="cyber-input" value={
                                                 selectedStatuses[ticket._id] ||
                                                 ""
                                             }
@@ -702,15 +612,7 @@ function Tickets() {
                                                     ticket._id
                                                 )
                                             }
-                                            style={{
-                                                marginLeft: "10px",
-                                                padding: "8px 14px",
-                                                border: "none",
-                                                borderRadius: "6px",
-                                                background: "#374151",
-                                                color: "white",
-                                                cursor: "pointer"
-                                            }}
+                                            className="cyber-button" style={{ marginLeft: "10px" }}
                                         >
                                             Update Status
                                         </button>
@@ -729,30 +631,14 @@ function Tickets() {
                                                     event.target.value
                                                 )
                                             }
-                                            style={{
-                                                padding: "8px",
-                                                width: "300px",
-                                                borderRadius: "6px",
-                                                border:
-                                                    "1px solid #343946",
-                                                background: "#0f1117",
-                                                color: "white"
-                                            }}
+                                            className="cyber-input" style={{ width: "300px" }}
                                         />
 
                                         <button
                                             onClick={() =>
                                                 handleResolve(ticket._id)
                                             }
-                                            style={{
-                                                marginLeft: "10px",
-                                                padding: "8px 14px",
-                                                border: "none",
-                                                borderRadius: "6px",
-                                                background: "#16a34a",
-                                                color: "white",
-                                                cursor: "pointer"
-                                            }}
+                                            className="cyber-button success" style={{ marginLeft: "10px" }}
                                         >
                                             Resolve
                                         </button>
@@ -760,13 +646,6 @@ function Tickets() {
                                 </div>
                             )}
                         </div>
-
-                        <div>
-                            <strong>
-                                {ticket.priority}
-                            </strong>
-                        </div>
-                    </div>
                 ))}
             </div>
         </div>
