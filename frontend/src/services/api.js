@@ -77,3 +77,44 @@ export const createIncident = async (incidentData) => {
 
     return data;
 };
+
+export const getTickets = async () => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/tickets`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to get tickets");
+    }
+
+    return data;
+};
+
+export const createTicket = async (incidentId) => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/tickets`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            incidentId
+        })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to create ticket");
+    }
+
+    return data;
+};

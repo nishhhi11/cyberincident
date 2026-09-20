@@ -2,6 +2,7 @@ import { useState } from "react";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ReportIncident from "./pages/ReportIncident";
+import Tickets from "./pages/Tickets";
 import "./App.css";
 
 function App() {
@@ -30,14 +31,38 @@ function App() {
     );
   }
 
+  if (page === "tickets") {
+    return (
+      <>
+        <button
+          className="back-button"
+          onClick={() => setPage("dashboard")}
+        >
+          ← Back to Dashboard
+        </button>
+
+        <Tickets />
+      </>
+    );
+  }
+
   return (
     <>
-      <button
-        className="report-button"
-        onClick={() => setPage("report")}
-      >
-        + Report Incident
-      </button>
+      <div className="dashboard-actions">
+        <button
+          className="report-button"
+          onClick={() => setPage("report")}
+        >
+          + Report Incident
+        </button>
+
+        <button
+          className="tickets-button"
+          onClick={() => setPage("tickets")}
+        >
+          🎫 Tickets
+        </button>
+      </div>
 
       <Dashboard />
     </>
