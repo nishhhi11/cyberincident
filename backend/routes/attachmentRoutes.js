@@ -14,11 +14,7 @@ const router = express.Router();
 router.post(
     "/",
     protect,
-    allowRoles(
-        "Support Agent",
-        "Security Analyst",
-        "Admin"
-    ),
+    allowRoles("Support Agent", "Security Analyst", "Admin"),
     upload.single("file"),
     uploadAttachment
 );
@@ -26,12 +22,7 @@ router.post(
 router.get(
     "/:ticketId",
     protect,
-    allowRoles(
-        "Employee",
-        "Support Agent",
-        "Security Analyst",
-        "Admin"
-    ),
+    allowRoles("Employee", "Support Agent", "Security Analyst", "Admin"),
     getAttachments
 );
 
