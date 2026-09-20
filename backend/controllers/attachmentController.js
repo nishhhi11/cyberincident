@@ -6,9 +6,7 @@ const uploadAttachment = async (req, res) => {
         const { ticket } = req.body;
 
         if (!req.file) {
-            return res.status(400).json({
-                message: "File is required"
-            });
+            return res.status(400).json({ message: "File is required" });
         }
 
         const attachment = await Attachment.create({
@@ -22,7 +20,7 @@ const uploadAttachment = async (req, res) => {
         await createAuditLog({
             user: req.user.id,
             action: "Attachment Uploaded",
-            ticket: ticket,
+            ticket,
             details: `Attachment uploaded: ${req.file.originalname}`
         });
 
