@@ -6,6 +6,7 @@ const {
 } = require("../controllers/attachmentController");
 
 const protect = require("../middleware/authMiddleware");
+const allowRoles = require("../middleware/roleMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
@@ -13,6 +14,11 @@ const router = express.Router();
 router.post(
     "/",
     protect,
+    allowRoles(
+        "Support Agent",
+        "Security Analyst",
+        "Admin"
+    ),
     upload.single("file"),
     uploadAttachment
 );
@@ -20,6 +26,12 @@ router.post(
 router.get(
     "/:ticketId",
     protect,
+    allowRoles(
+        "Employee",
+        "Support Agent",
+        "Security Analyst",
+        "Admin"
+    ),
     getAttachments
 );
 
