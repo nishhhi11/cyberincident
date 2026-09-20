@@ -1,13 +1,31 @@
 import { useEffect, useState } from "react";
-import { getTickets } from "../services/api";
+import {
+    getTickets,
+    getAssignableUsers,
+    assignTicket
+} from "../services/api";
 
 function Tickets() {
     const [tickets, setTickets] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    const canManageTickets =
+        user?.role === "Support Agent" ||
+        user?.role === "Security Analyst" ||
+        user?.role === "Admin";
 
     useEffect(() => {
         loadTickets();
+
+        if (canManageTickets) {
+            loadAssignableUsers();
+        }
     }, []);
 
     const loadTickets = async () => {
@@ -26,6 +44,44 @@ function Tickets() {
         }
     };
 
+    const loadAssignableUsers = async () => {
+        try {
+            const data = await getAssignableUsers();
+            setUsers(data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const handleUserChange = (ticketId, userId) => {
+        setSelectedUsers({
+            ...selectedUsers,
+            [ticketId]: userId
+        });
+    };
+
+    const handleAssign = async (ticketId) => {
+        const userId = selectedUsers[ticketId];
+
+        if (!userId) {
+            setError("Please select a user first");
+            return;
+        }
+
+        try {
+            setError("");
+            setMessage("");
+
+            await assignTicket(ticketId, userId);
+
+            setMessage("Ticket assigned successfully");
+
+            await loadTickets();
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     return (
         <div className="dashboard">
             <h1>Ticket Management</h1>
@@ -33,6 +89,12 @@ function Tickets() {
             <p style={{ color: "#9ca3af" }}>
                 Manage cybersecurity incident tickets
             </p>
+
+            {message && (
+                <p style={{ color: "#4ade80" }}>
+                    {message}
+                </p>
+            )}
 
             {loading && <p>Loading tickets...</p>}
 
@@ -80,6 +142,53 @@ function Tickets() {
                                       ).toLocaleString()
                                     : "Not set"}
                             </p>
+
+                            {canManageTickets && (
+                                <div style={{ marginTop: "15px" }}>
+                                    <select
+                                        value={
+                                            selectedUsers[ticket._id] || ""
+                                        }
+                                        onChange={(event) =>
+                                            handleUserChange(
+                                                ticket._id,
+                                                event.target.value
+                                            )
+                                        }
+                                    >
+                                        <option value="">
+                                            Select user
+                                        </option>
+
+                                        {users.map((assignableUser) => (
+                                            <option
+                                                key={assignableUser._id}
+                                                value={assignableUser._id}
+                                            >
+                                                {assignableUser.name} -{" "}
+                                                {assignableUser.role}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    <button
+                                        onClick={() =>
+                                            handleAssign(ticket._id)
+                                        }
+                                        style={{
+                                            marginLeft: "10px",
+                                            padding: "8px 14px",
+                                            border: "none",
+                                            borderRadius: "6px",
+                                            background: "#2563eb",
+                                            color: "white",
+                                            cursor: "pointer"
+                                        }}
+                                    >
+                                        Assign
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         <div>
