@@ -96,3 +96,31 @@ body {
   font-size: 32px;
   margin: 15px 0 0;
 }
+
+.recent-incidents {
+  margin-top: 40px;
+}
+
+.recent-incidents h2 {
+  margin-bottom: 20px;
+}
+
+.incident-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  margin-bottom: 12px;
+  background: #171a23;
+  border: 1px solid #292d38;
+  border-radius: 12px;
+}
+
+.incident-card h3 {
+  margin: 0 0 8px;
+}
+
+.incident-card p {
+  margin: 5px 0;
+  color: #9ca3af;
+}
