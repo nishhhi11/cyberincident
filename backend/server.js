@@ -13,6 +13,8 @@ const auditRoutes = require("./routes/auditRoutes");
 const protect = require("./middleware/authMiddleware");
 const allowRoles = require("./middleware/roleMiddleware");
 
+const checkSlaEscalation = require("./utils/slaChecker");
+
 dotenv.config();
 
 connectDB();
@@ -55,3 +57,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+setInterval(() => {
+    checkSlaEscalation();
+}, 60000);
