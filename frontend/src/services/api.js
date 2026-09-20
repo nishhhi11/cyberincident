@@ -20,3 +20,21 @@ export const loginUser = async (email, password) => {
 
     return data;
 };
+
+export const getIncidentStats = async () => {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/incidents/stats`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to get incident statistics");
+    }
+
+    return data;
+};

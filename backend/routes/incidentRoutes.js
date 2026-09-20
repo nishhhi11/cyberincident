@@ -43,6 +43,7 @@ router.get(
     "/stats",
     protect,
     allowRoles(
+        "Employee",
         "Support Agent",
         "Security Analyst",
         "Admin"
