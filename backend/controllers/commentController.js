@@ -37,9 +37,7 @@ const getComments = async (req, res) => {
     try {
         const comments = await Comment.find({
             ticket: req.params.ticketId
-        })
-            .populate("user", "name email role")
-            .sort({ createdAt: 1 });
+        }).populate("user", "name email role").sort({ createdAt: 1 });
 
         res.json(comments);
     } catch (error) {
@@ -50,7 +48,4 @@ const getComments = async (req, res) => {
     }
 };
 
-module.exports = {
-    createComment,
-    getComments
-};
+module.exports = { createComment, getComments };

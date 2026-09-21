@@ -13,12 +13,13 @@ const allowRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-router.post(
-    "/",
-    protect,
-    allowRoles("Support Agent", "Security Analyst", "Admin"),
-    createTicket
+const staffRoles = allowRoles(
+    "Support Agent",
+    "Security Analyst",
+    "Admin"
 );
+
+router.post("/", protect, staffRoles, createTicket);
 
 router.get(
     "/",
@@ -27,25 +28,8 @@ router.get(
     getTickets
 );
 
-router.put(
-    "/:id/assign",
-    protect,
-    allowRoles("Support Agent", "Security Analyst", "Admin"),
-    assignTicket
-);
-
-router.put(
-    "/:id/status",
-    protect,
-    allowRoles("Support Agent", "Security Analyst", "Admin"),
-    updateTicketStatus
-);
-
-router.put(
-    "/:id/resolve",
-    protect,
-    allowRoles("Support Agent", "Security Analyst", "Admin"),
-    resolveTicket
-);
+router.put("/:id/assign", protect, staffRoles, assignTicket);
+router.put("/:id/status", protect, staffRoles, updateTicketStatus);
+router.put("/:id/resolve", protect, staffRoles, resolveTicket);
 
 module.exports = router;

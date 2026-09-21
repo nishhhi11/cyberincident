@@ -78,19 +78,33 @@ export const createIncident = async (incidentData) => {
     return data;
 };
 
-export const getTickets = async () => {
+export const getTickets = async (search = "", page = 1, limit = 5) => {
     const token = localStorage.getItem("token");
 
-    const response = await fetch(`${API_URL}/tickets`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    const params = new URLSearchParams({
+        page,
+        limit
     });
+
+    if (search) {
+        params.append("search", search);
+    }
+
+    const response = await fetch(
+        `${API_URL}/tickets?${params.toString()}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
 
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || "Failed to get tickets");
+        throw new Error(
+            data.message || "Failed to get tickets"
+        );
     }
 
     return data;

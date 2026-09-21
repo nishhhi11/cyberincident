@@ -15,10 +15,18 @@ const getFingerprintPrefix = (category) => {
 
 const generateFingerprint = async (category) => {
     const prefix = getFingerprintPrefix(category);
-    const year = new Date().getFullYear().toString().slice(-2);
-    const count = await Incident.countDocuments({ category });
+    const year = new Date().getFullYear();
 
-    return `${prefix}-${year}-${String(count + 1).padStart(3, "0")}`;
+    let fingerprint;
+    let exists = true;
+
+    while (exists) {
+        const uniquePart = Date.now().toString().slice(-8);
+        fingerprint = `${prefix}-${year}-${uniquePart}`;
+        exists = await Incident.exists({ fingerprint });
+    }
+
+    return fingerprint;
 };
 
 const calculatePriority = (impact, urgency) => {
@@ -28,12 +36,7 @@ const calculatePriority = (impact, urgency) => {
     return "Low";
 };
 
-const calculateRiskLevel = (impact, urgency) => {
-    if (impact === "High" && urgency === "High") return "Critical";
-    if (impact === "High" || urgency === "High") return "High";
-    if (impact === "Medium" || urgency === "Medium") return "Medium";
-    return "Low";
-};
+const calculateRiskLevel = calculatePriority;
 
 const createIncident = async (req, res) => {
     try {
@@ -46,6 +49,8 @@ const createIncident = async (req, res) => {
             urgency
         } = req.body;
 
+        const priority = calculatePriority(impact, urgency);
+
         const incident = await Incident.create({
             fingerprint: await generateFingerprint(category),
             title,
@@ -54,7 +59,7 @@ const createIncident = async (req, res) => {
             location,
             impact,
             urgency,
-            priority: calculatePriority(impact, urgency),
+            priority,
             riskLevel: calculateRiskLevel(impact, urgency),
             reportedBy: req.user.id
         });
@@ -175,9 +180,10 @@ const updateIncident = async (req, res) => {
         if (impact || urgency) {
             const newImpact = impact || incident.impact;
             const newUrgency = urgency || incident.urgency;
+            const priority = calculatePriority(newImpact, newUrgency);
 
-            incident.priority = calculatePriority(newImpact, newUrgency);
-            incident.riskLevel = calculateRiskLevel(newImpact, newUrgency);
+            incident.priority = priority;
+            incident.riskLevel = priority;
         }
 
         await incident.save();

@@ -1,4 +1,5 @@
 const Ticket = require("../models/Ticket");
+const Incident = require("../models/Incident");
 const { createAuditLog } = require("../controllers/auditController");
 
 const checkSlaEscalation = async () => {
@@ -12,17 +13,21 @@ const checkSlaEscalation = async () => {
             ticket.status = "Escalated";
             await ticket.save();
 
+            await Incident.findByIdAndUpdate(ticket.incident, {
+                status: "Escalated"
+            });
+
             await createAuditLog({
-                user: ticket.assignedTo || null,
+                user: null,
                 action: "Ticket Escalated",
                 ticket: ticket._id,
+                incident: ticket.incident,
                 details: "Ticket escalated because SLA deadline was reached"
             });
         }
 
-        if (tickets.length) {
+        if (tickets.length)
             console.log(`${tickets.length} ticket(s) escalated`);
-        }
     } catch (error) {
         console.error("SLA check failed:", error.message);
     }

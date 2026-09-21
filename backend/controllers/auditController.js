@@ -34,15 +34,14 @@ const getAuditLogs = async (req, res) => {
 
 const getIncidentTimeline = async (req, res) => {
   try {
-    const tickets = await Ticket.find({
-      incident: req.params.incidentId
-    }).select("_id");
+    const { incidentId } = req.params;
 
+    const tickets = await Ticket.find({ incident: incidentId }).select("_id");
     const ticketIds = tickets.map(ticket => ticket._id);
 
     const logs = await AuditLog.find({
       $or: [
-        { incident: req.params.incidentId },
+        { incident: incidentId },
         { ticket: { $in: ticketIds } }
       ]
     })
@@ -52,7 +51,7 @@ const getIncidentTimeline = async (req, res) => {
       .sort({ createdAt: 1 });
 
     res.json({
-      incidentId: req.params.incidentId,
+      incidentId,
       timeline: logs
     });
   } catch (error) {

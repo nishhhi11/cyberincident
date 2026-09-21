@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createIncident } from "../services/api";
 
 function ReportIncident() {
@@ -11,35 +11,8 @@ function ReportIncident() {
         urgency: "Low"
     });
 
-    const [priorityPreview, setPriorityPreview] = useState({ priority: "Low", sla: 24 });
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
-
-    useEffect(() => {
-        const { impact, urgency } = formData;
-        let priority = 'Low';
-        let sla = 24;
-
-        if (impact === 'High' && urgency === 'High') {
-            priority = 'Critical';
-            sla = 2;
-        } else if (
-            (impact === 'High' && urgency === 'Medium') ||
-            (impact === 'Medium' && urgency === 'High')
-        ) {
-            priority = 'High';
-            sla = 6;
-        } else if (
-            (impact === 'Medium' && urgency === 'Medium') ||
-            (impact === 'High' && urgency === 'Low') ||
-            (impact === 'Low' && urgency === 'High')
-        ) {
-            priority = 'Medium';
-            sla = 12;
-        }
-
-        setPriorityPreview({ priority, sla });
-    }, [formData.impact, formData.urgency]);
 
     const handleChange = (event) => {
         setFormData({
@@ -48,14 +21,47 @@ function ReportIncident() {
         });
     };
 
+    const getPriorityDetails = () => {
+        const { impact, urgency } = formData;
+
+        if (impact === "High" && urgency === "High") {
+            return {
+                priority: "Critical",
+                sla: "2 hours"
+            };
+        }
+
+        if (impact === "High" || urgency === "High") {
+            return {
+                priority: "High",
+                sla: "6 hours"
+            };
+        }
+
+        if (impact === "Medium" || urgency === "Medium") {
+            return {
+                priority: "Medium",
+                sla: "12 hours"
+            };
+        }
+
+        return {
+            priority: "Low",
+            sla: "24 hours"
+        };
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
+
         setMessage("");
         setError("");
 
         try {
             await createIncident(formData);
+
             setMessage("Incident reported successfully");
+
             setFormData({
                 title: "",
                 category: "Phishing",
@@ -69,129 +75,163 @@ function ReportIncident() {
         }
     };
 
+    const priorityDetails = getPriorityDetails();
+
     return (
         <div className="report-page">
+
             <div className="report-header">
+                <span className="section-label">
+                    SECURITY REPORTING
+                </span>
+
                 <h1>Report Incident</h1>
-                <p className="text-muted">Report a cybersecurity incident to the support team.</p>
+
+                <p>
+                    Report a cybersecurity incident to the support team.
+                </p>
             </div>
 
-            {message && <div className="cyber-alert success mt-20">{message}</div>}
-            {error && <div className="cyber-alert error mt-20">{error}</div>}
+            <form
+                className="incident-form"
+                onSubmit={handleSubmit}
+            >
 
-            <form className="incident-form-grid mt-25" onSubmit={handleSubmit}>
-                <div className="form-main-column glass-panel">
-                    <h3 className="form-section-title">Incident Details</h3>
-                    
-                    <div className="form-group mt-20">
-                        <label>Incident Title</label>
-                        <input
-                            className="cyber-input"
-                            type="text"
-                            name="title"
-                            value={formData.title}
-                            onChange={handleChange}
-                            placeholder="Enter incident title"
-                            required
-                        />
-                    </div>
+                <div className="form-section-title">
+                    Incident Details
+                </div>
 
-                    <div className="form-group">
-                        <label>Category</label>
+                <label>
+                    Incident Title
+                    <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        placeholder="Enter incident title"
+                        required
+                    />
+                </label>
+
+                <div className="form-row">
+
+                    <label>
+                        Category
                         <select
-                            className="cyber-input"
                             name="category"
                             value={formData.category}
                             onChange={handleChange}
                         >
-                            <option value="Phishing">Phishing</option>
-                            <option value="Malware">Malware</option>
-                            <option value="Account/Security">Account/Security</option>
-                            <option value="Suspicious Activity">Suspicious Activity</option>
-                            <option value="Network Issue">Network Issue</option>
-                            <option value="Other">Other</option>
+                            <option>Phishing</option>
+                            <option>Malware</option>
+                            <option>Account/Security</option>
+                            <option>Suspicious Activity</option>
+                            <option>Network Issue</option>
+                            <option>Other</option>
                         </select>
-                    </div>
+                    </label>
 
-                    <div className="form-group">
-                        <label>Location</label>
+                    <label>
+                        Location
                         <input
-                            className="cyber-input"
                             type="text"
                             name="location"
                             value={formData.location}
                             onChange={handleChange}
-                            placeholder="Example: Computer Lab"
+                            placeholder="e.g. Mumbai Office"
                             required
                         />
-                    </div>
+                    </label>
 
-                    <div className="form-group">
-                        <label>Description</label>
-                        <textarea
-                            className="cyber-input"
-                            name="description"
-                            value={formData.description}
+                </div>
+
+                <label>
+                    Description
+                    <textarea
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        placeholder="Describe what happened..."
+                        rows="5"
+                        required
+                    />
+                </label>
+
+                <div className="form-row">
+
+                    <label>
+                        Impact
+                        <select
+                            name="impact"
+                            value={formData.impact}
                             onChange={handleChange}
-                            placeholder="Describe what happened"
-                            rows="6"
-                            required
-                        />
-                    </div>
+                        >
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Urgency
+                        <select
+                            name="urgency"
+                            value={formData.urgency}
+                            onChange={handleChange}
+                        >
+                            <option>Low</option>
+                            <option>Medium</option>
+                            <option>High</option>
+                        </select>
+                    </label>
+
                 </div>
 
-                <div className="form-side-column">
-                    <div className="glass-panel">
-                        <h3 className="form-section-title">Severity Assessment</h3>
-                        
-                        <div className="form-group mt-20">
-                            <label>Impact</label>
-                            <select
-                                className="cyber-input"
-                                name="impact"
-                                value={formData.impact}
-                                onChange={handleChange}
-                            >
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
-                            </select>
-                        </div>
+                <div className="priority-preview">
 
-                        <div className="form-group">
-                            <label>Urgency</label>
-                            <select
-                                className="cyber-input"
-                                name="urgency"
-                                value={formData.urgency}
-                                onChange={handleChange}
-                            >
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
-                            </select>
-                        </div>
+                    <div>
+                        <span className="section-label">
+                            CALCULATED PRIORITY
+                        </span>
 
-                        <div className="priority-preview-box mt-25">
-                            <h4>Priority Preview</h4>
-                            <div className={`priority-result priority-${priorityPreview.priority.toLowerCase()}`}>
-                                <div className={`incident-dot ${priorityPreview.priority === 'Critical' ? 'critical' : ''}`}></div>
-                                <div className="priority-details">
-                                    <strong>{priorityPreview.priority}</strong>
-                                    <span>Estimated SLA: {priorityPreview.sla} Hours</span>
-                                </div>
-                            </div>
-                            <p className="text-muted mt-20" style={{fontSize: '0.85rem'}}>
-                                Priority is automatically calculated based on the selected impact and urgency matrix.
-                            </p>
-                        </div>
+                        <strong className="priority-preview-value">
+                            {priorityDetails.priority}
+                        </strong>
                     </div>
 
-                    <button className="cyber-button primary submit-incident-btn mt-20" type="submit">
-                        Submit Incident Report
-                    </button>
+                    <div>
+                        <span className="section-label">
+                            SLA RESPONSE TIME
+                        </span>
+
+                        <strong className="priority-preview-sla">
+                            {priorityDetails.sla}
+                        </strong>
+                    </div>
+
                 </div>
+
+                <button
+                    type="submit"
+                    className="primary-button"
+                >
+                    Report Incident
+                </button>
+
+                {message && (
+                    <p className="success-message">
+                        {message}
+                    </p>
+                )}
+
+                {error && (
+                    <p className="error-message">
+                        {error}
+                    </p>
+                )}
+
             </form>
+
         </div>
     );
 }

@@ -14,41 +14,18 @@ const protect = require("../middleware/authMiddleware");
 const allowRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
-
-router.post(
-    "/",
-    protect,
-    allowRoles("Employee", "Support Agent", "Security Analyst", "Admin"),
-    createIncident
+const allRoles = allowRoles(
+    "Employee",
+    "Support Agent",
+    "Security Analyst",
+    "Admin"
 );
 
-router.get(
-    "/",
-    protect,
-    allowRoles("Employee", "Support Agent", "Security Analyst", "Admin"),
-    getIncidents
-);
-
-router.get(
-    "/stats",
-    protect,
-    allowRoles("Employee", "Support Agent", "Security Analyst", "Admin"),
-    getIncidentStats
-);
-
-router.get(
-    "/:id/similar",
-    protect,
-    allowRoles("Employee", "Support Agent", "Security Analyst", "Admin"),
-    getSimilarIncidents
-);
-
-router.get(
-    "/:id",
-    protect,
-    allowRoles("Employee", "Support Agent", "Security Analyst", "Admin"),
-    getIncidentById
-);
+router.post("/", protect, allRoles, createIncident);
+router.get("/", protect, allRoles, getIncidents);
+router.get("/stats", protect, allRoles, getIncidentStats);
+router.get("/:id/similar", protect, allRoles, getSimilarIncidents);
+router.get("/:id", protect, allRoles, getIncidentById);
 
 router.put(
     "/:id",
@@ -57,11 +34,6 @@ router.put(
     updateIncident
 );
 
-router.delete(
-    "/:id",
-    protect,
-    allowRoles("Admin"),
-    deleteIncident
-);
+router.delete("/:id", protect, allowRoles("Admin"), deleteIncident);
 
 module.exports = router;

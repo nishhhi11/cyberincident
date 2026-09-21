@@ -2,6 +2,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+const getUserData = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role
+});
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -19,12 +26,7 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({
       message: "User registered successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      user: getUserData(user)
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -51,12 +53,7 @@ const loginUser = async (req, res) => {
     res.json({
       message: "Login successful",
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      user: getUserData(user)
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
