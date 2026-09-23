@@ -193,7 +193,7 @@ function ReportIncident() {
                         <span className="section-label">
                             CALCULATED PRIORITY
                         </span>
-
+                        {" "}
                         <strong className="priority-preview-value">
                             {priorityDetails.priority}
                         </strong>
@@ -203,7 +203,7 @@ function ReportIncident() {
                         <span className="section-label">
                             SLA RESPONSE TIME
                         </span>
-
+                        {" "}
                         <strong className="priority-preview-sla">
                             {priorityDetails.sla}
                         </strong>

@@ -725,7 +725,8 @@
 }
 
 .incidents-panel,
-.status-panel {
+.status-panel,
+.tickets-panel {
   padding: 23px;
 }
 

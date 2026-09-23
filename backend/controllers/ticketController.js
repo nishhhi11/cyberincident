@@ -77,9 +77,18 @@ const getTickets = async (req, res) => {
         const currentPage = Number(page);
         const itemsPerPage = Number(limit);
         const skip = (currentPage - 1) * itemsPerPage;
-        const filter = search
+        let filter = search
             ? { title: { $regex: search, $options: "i" } }
             : {};
+
+        if (req.user.role === "Employee") {
+            const userIncidents = await Incident.find({
+                reportedBy: req.user.id
+            }).select("_id");
+            
+            const incidentIds = userIncidents.map((inc) => inc._id);
+            filter.incident = { $in: incidentIds };
+        }
 
         const totalTickets = await Ticket.countDocuments(filter);
 

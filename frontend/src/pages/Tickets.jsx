@@ -378,16 +378,18 @@ function Tickets() {
                         TICKET OPERATIONS
                     </span>
 
-                    <h1>Ticket Management</h1>
+                    <h1>{canManageTickets ? "Ticket Management" : "My Tickets"}</h1>
 
                     <p className="dashboard-subtitle">
-                        Manage cybersecurity incident tickets.
+                        {canManageTickets
+                            ? "Manage cybersecurity incident tickets."
+                            : "Track your cybersecurity incident tickets."}
                     </p>
                 </div>
             </div>
 
             {canManageTickets && (
-                <section className="dashboard-panel mb-25">
+                <section className="dashboard-panel tickets-panel mb-25">
                     <div className="panel-heading">
                         <div>
                             <span className="panel-label">
@@ -436,7 +438,7 @@ function Tickets() {
                 </section>
             )}
 
-            <div className="dashboard-panel mb-25">
+            <div className="dashboard-panel tickets-panel mb-25">
                 <div className="panel-heading">
                     <div>
                         <span className="panel-label">
