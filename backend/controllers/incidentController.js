@@ -64,6 +64,21 @@ const createIncident = async (req, res) => {
             reportedBy: req.user.id
         });
 
+        const Ticket = require("../models/Ticket");
+        const getSlaHours = (priority) =>
+            ({ Critical: 2, High: 6, Medium: 12, Low: 24 }[priority] || 24);
+
+        const slaHours = getSlaHours(priority);
+        const slaDeadline = new Date(Date.now() + slaHours * 60 * 60 * 1000);
+
+        const ticket = await Ticket.create({
+            incident: incident._id,
+            title: incident.title,
+            priority: incident.priority,
+            status: "Open",
+            slaDeadline
+        });
+
         await createAuditLog({
             user: req.user.id,
             action: "Incident Created",
@@ -71,9 +86,18 @@ const createIncident = async (req, res) => {
             details: `Incident "${incident.title}" was created`
         });
 
+        await createAuditLog({
+            user: req.user.id,
+            action: "Ticket Created",
+            ticket: ticket._id,
+            incident: incident._id,
+            details: "Ticket automatically created for incident"
+        });
+
         res.status(201).json({
-            message: "Incident created successfully",
-            incident
+            message: "Incident and Ticket created successfully",
+            incident,
+            ticket
         });
     } catch (error) {
         res.status(500).json({

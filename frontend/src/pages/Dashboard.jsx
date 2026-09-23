@@ -110,11 +110,12 @@ function Dashboard() {
         `priority-${priority?.toLowerCase()}`;
 
     // Employee
-    const myIncidents = incidents.filter(
-        (inc) =>
-            inc.reportedBy?._id === user?._id ||
-            inc.reportedBy === user?._id
-    );
+    const userId = user?.id || user?._id;
+    const myIncidents = incidents.filter((inc) => {
+        if (!inc.reportedBy || !userId) return false;
+        const reportedById = inc.reportedBy._id || inc.reportedBy;
+        return reportedById.toString() === userId.toString();
+    });
 
     const myTotal = myIncidents.length;
 
@@ -713,7 +714,7 @@ function Dashboard() {
             <div className="dashboard-stats">
                 <div className="cyber-stat stat-total">
                     <div className="stat-top">
-                        <span>ALL TICKETS</span>
+                        <span>ACTIVE TICKETS</span>
                     </div>
 
                     <strong>
@@ -722,7 +723,7 @@ function Dashboard() {
                             : ticketsTotal}
                     </strong>
 
-                    <small>ACTIVE TICKETS</small>
+                    <small>CURRENTLY ACTIVE</small>
                 </div>
 
                 <div className="cyber-stat stat-open">

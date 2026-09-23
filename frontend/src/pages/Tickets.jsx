@@ -792,6 +792,7 @@ function Tickets() {
                                             className="cyber-input"
                                             value={
                                                 selectedStatuses[ticket._id] ||
+                                                ticket.status ||
                                                 ""
                                             }
                                             onChange={(e) =>
@@ -800,6 +801,7 @@ function Tickets() {
                                                     e.target.value
                                                 )
                                             }
+                                            disabled={ticket.status === "Resolved"}
                                         >
                                             <option value="">
                                                 Select status
@@ -833,6 +835,7 @@ function Tickets() {
                                                 )
                                             }
                                             className="cyber-button"
+                                            disabled={ticket.status === "Resolved"}
                                         >
                                             Update Status
                                         </button>
