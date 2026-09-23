@@ -186,13 +186,15 @@ function Dashboard() {
     }).length;
 
     // Security Analyst
-    const highRiskCount = incidents.filter(
-        (inc) => inc.riskLevel === "High"
-    ).length;
-
     const criticalCount = incidents.filter(
         (inc) => inc.priority === "Critical"
     ).length;
+
+    const highRiskCount = incidents.filter(
+        (inc) => inc.priority === "High"
+    ).length;
+    
+    const elevatedThreatCount = criticalCount + highRiskCount;
 
     const mediumCount = incidents.filter(
         (inc) => inc.priority === "Medium"
@@ -892,13 +894,13 @@ function Dashboard() {
 
                     <div className="cyber-stat stat-open">
                         <div className="stat-top">
-                            <span>HIGH RISK</span>
+                            <span>HIGH + CRITICAL</span>
                         </div>
 
                         <strong>
-                            {highRiskCount < 10
-                                ? `0${highRiskCount}`
-                                : highRiskCount}
+                            {elevatedThreatCount < 10
+                                ? `0${elevatedThreatCount}`
+                                : elevatedThreatCount}
                         </strong>
 
                         <small>ELEVATED THREAT LEVEL</small>
@@ -1238,7 +1240,7 @@ function Dashboard() {
 
     const getSystemStatusLabel = () => {
         if (user?.role === "Security Analyst") {
-            return "THREAT MON.";
+            return "THREAT MONITOR";
         }
 
         if (user?.role === "Admin") {
