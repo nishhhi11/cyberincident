@@ -652,7 +652,7 @@ Example:
 ![User Management](screenshots/users.png)
 ```
 
-> Replace these paths with the actual screenshot filenames in your repository.
+
 
 ---
 
@@ -730,7 +730,7 @@ B.Tech Computer Science Engineering
 
 ---
 
-# 📚 Learning Outcomes
+#  Learning Outcomes
 
 Through this project, the following concepts were implemented and practiced:
 
@@ -755,7 +755,7 @@ Through this project, the following concepts were implemented and practiced:
 
 ---
 
-## 🚀 Project Status
+##  Project Status
 
 **Status:** Completed / Academic Project
 
