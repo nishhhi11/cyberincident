@@ -625,28 +625,30 @@ Example:
 
 ### Dashboard
 
+![Dashboard](<img width="1311" height="836" alt="Screenshot 2026-09-25 at 10 18 59 AM" src="https://github.com/user-attachments/assets/71b9dd24-5487-4cab-ab1c-7b53c252e613" />
+)
 ```text
-<img width="1309" height="843" alt="Screenshot 2026-09-25 at 9 59 42 AM" src="https://github.com/user-attachments/assets/1e738e6a-9537-4e9d-9d8c-1e1a7101da88" />
+
 
 ```
 
 ### Ticket Management
 
+![Ticket Management](<img width="1306" height="467" alt="Screenshot 2026-09-25 at 10 19 13 AM" src="https://github.com/user-attachments/assets/a9a233cb-2d33-4751-844c-d98a7ced8a57" />
+)
 ```text
-<img width="1308" height="455" alt="Screenshot 2026-09-25 at 9 59 56 AM" src="https://github.com/user-attachments/assets/651ddfd8-ec67-4107-a7b4-f284024ac4ed" />
+
 
 ```
 
 ### Incident Management
 
+![Incident Management](<img width="1308" height="441" alt="Screenshot 2026-09-25 at 10 19 29 AM" src="https://github.com/user-attachments/assets/9b65c21f-90bb-4c48-a7ac-b523044e2de4" />
+)
 ```text
-![Incident Management](screenshots/incidents.png)
+
 ```
 
-### Incidents Management
-
-```text
-<img width="1309" height="480" alt="Screenshot 2026-09-25 at 10 01 22 AM" src="https://github.com/user-attachments/assets/42b6eece-80f4-44ff-a4a5-26c803a852ac" />
 
 ```
 ---
