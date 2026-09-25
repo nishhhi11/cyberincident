@@ -624,17 +624,15 @@ Example:
 
 
 ### Dashboard
-
-![Dashboard](<img width="1311" height="836" alt="Screenshot 2026-09-25 at 10 18 59 AM" src="https://github.com/user-attachments/assets/71b9dd24-5487-4cab-ab1c-7b53c252e613" />
+(<img width="1311" height="836" alt="Screenshot 2026-09-25 at 10 18 59 AM" src="https://github.com/user-attachments/assets/71b9dd24-5487-4cab-ab1c-7b53c252e613" />
 )
 ```text
-
 
 ```
 
 ### Ticket Management
 
-![Ticket Management](<img width="1306" height="467" alt="Screenshot 2026-09-25 at 10 19 13 AM" src="https://github.com/user-attachments/assets/a9a233cb-2d33-4751-844c-d98a7ced8a57" />
+(<img width="1306" height="467" alt="Screenshot 2026-09-25 at 10 19 13 AM" src="https://github.com/user-attachments/assets/a9a233cb-2d33-4751-844c-d98a7ced8a57" />
 )
 ```text
 
@@ -642,8 +640,7 @@ Example:
 ```
 
 ### Incident Management
-
-![Incident Management](<img width="1308" height="441" alt="Screenshot 2026-09-25 at 10 19 29 AM" src="https://github.com/user-attachments/assets/9b65c21f-90bb-4c48-a7ac-b523044e2de4" />
+(<img width="1308" height="441" alt="Screenshot 2026-09-25 at 10 19 29 AM" src="https://github.com/user-attachments/assets/9b65c21f-90bb-4c48-a7ac-b523044e2de4" />
 )
 ```text
 
