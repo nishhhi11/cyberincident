@@ -622,22 +622,19 @@ Add screenshots of your actual application here.
 
 Example:
 
-### Login Page
-
-```text
-![Login Page](screenshots/login.png)
-```
 
 ### Dashboard
 
 ```text
-![Dashboard](screenshots/dashboard.png)
+<img width="1309" height="843" alt="Screenshot 2026-09-25 at 9 59 42 AM" src="https://github.com/user-attachments/assets/1e738e6a-9537-4e9d-9d8c-1e1a7101da88" />
+
 ```
 
 ### Ticket Management
 
 ```text
-![Ticket Management](screenshots/tickets.png)
+<img width="1308" height="455" alt="Screenshot 2026-09-25 at 9 59 56 AM" src="https://github.com/user-attachments/assets/651ddfd8-ec67-4107-a7b4-f284024ac4ed" />
+
 ```
 
 ### Incident Management
@@ -646,27 +643,13 @@ Example:
 ![Incident Management](screenshots/incidents.png)
 ```
 
-### User Management
+### Incidents Management
 
 ```text
-![User Management](screenshots/users.png)
+<img width="1309" height="480" alt="Screenshot 2026-09-25 at 10 01 22 AM" src="https://github.com/user-attachments/assets/42b6eece-80f4-44ff-a4a5-26c803a852ac" />
+
 ```
-
-
-
 ---
-
-# 📁 Recommended Screenshot Folder
-
-```text
-screenshots/
-├── login.png
-├── dashboard.png
-├── tickets.png
-├── incidents.png
-└── users.png
-```
-
 ---
 
 #  Assumptions & Limitations
