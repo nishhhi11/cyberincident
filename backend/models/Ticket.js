@@ -1,45 +1,29 @@
 const mongoose = require("mongoose");
 
-const ticketSchema = new mongoose.Schema(
-    {
-        incident: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Incident",
-            required: true
-        },
-        title: {
-            type: String,
-            required: true
-        },
-        priority: {
-            type: String,
-            enum: ["Low", "Medium", "High", "Critical"],
-            required: true
-        },
-        status: {
-            type: String,
-            enum: ["Open", "Assigned", "In Progress", "Resolved", "Escalated"],
-            default: "Open"
-        },
-        assignedTo: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            default: null
-        },
-        slaDeadline: {
-            type: Date,
-            default: null
-        },
-        resolution: {
-            type: String,
-            default: null
-        },
-        resolvedAt: {
-            type: Date,
-            default: null
-        }
+const ticketSchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    priority: {
+        type: String,
+        enum: ["low", "medium", "high", "critical"],
+        default: "medium",
     },
-    { timestamps: true }
-);
+    status: {
+        type: String,
+        enum: ["open", "in_progress", "escalated", "resolved", "closed"],
+        default: "open",
+    },
+    category: {
+        type: String,
+        enum: ["IT", "security"],
+        default: "IT",
+    },
+    reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    slaDeadline: Date,
+    escalated: { type: Boolean, default: false },
+    resolvedAt: Date,
+}, { timestamps: true });
 
-module.exports = mongoose.model("Ticket", ticketSchema);
+const Ticket = mongoose.model("Ticket", ticketSchema);
+module.exports = Ticket;

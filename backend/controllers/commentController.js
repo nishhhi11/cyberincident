@@ -1,51 +1,46 @@
 const Comment = require("../models/Comment");
-const { createAuditLog } = require("./auditController");
+const AuditLog = require("../models/AuditLog");
 
-const createComment = async (req, res) => {
+const addComment = async (req, res) => {
     try {
-        const { ticket, message } = req.body;
-
+        const { content, ticketId, incidentId } = req.body;
         const comment = await Comment.create({
-            ticket,
-            user: req.user.id,
-            message
+            content,
+            author: req.user.id,
+            ticketId,
+            incidentId,
         });
 
-        const savedComment = await Comment.findById(comment._id)
-            .populate("user", "name email role");
-
-        await createAuditLog({
-            user: req.user.id,
-            action: "Comment Added",
-            ticket,
-            details: `Comment added: ${message}`
+        await AuditLog.create({
+            action: "COMMENT_ADDED",
+            performedBy: req.user.id,
+            targetCollection: "comments",
+            targetId: comment._id,
+            details: { content, ticketId, incidentId },
         });
 
-        res.status(201).json({
-            message: "Comment added successfully",
-            comment: savedComment
-        });
+        const populated = await Comment.findById(comment._id).populate("author", "name email role");
+        res.status(201).json(populated);
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to add comment",
-            error: error.message
-        });
+        res.status(500).json({ message: "Failed to add comment", error: error.message });
     }
 };
 
 const getComments = async (req, res) => {
     try {
-        const comments = await Comment.find({
-            ticket: req.params.ticketId
-        }).populate("user", "name email role").sort({ createdAt: 1 });
+        const { ticketId, incidentId } = req.query;
+        const filter = {};
+        if (ticketId) filter.ticketId = ticketId;
+        if (incidentId) filter.incidentId = incidentId;
+
+        const comments = await Comment.find(filter)
+            .populate("author", "name email role")
+            .sort({ createdAt: 1 });
 
         res.json(comments);
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to get comments",
-            error: error.message
-        });
+        res.status(500).json({ message: "Failed to fetch comments", error: error.message });
     }
 };
 
-module.exports = { createComment, getComments };
+module.exports = { addComment, getComments };

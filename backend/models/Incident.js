@@ -1,74 +1,24 @@
 const mongoose = require("mongoose");
 
-const incidentSchema = new mongoose.Schema(
-    {
-        fingerprint: {
-            type: String,
-            unique: true,
-            required: true
-        },
-        title: {
-            type: String,
-            required: true
-        },
-        category: {
-            type: String,
-            required: true,
-            enum: [
-                "Phishing",
-                "Malware",
-                "Account/Security",
-                "Suspicious Activity",
-                "Network Issue",
-                "Other"
-            ]
-        },
-        description: {
-            type: String,
-            required: true
-        },
-        location: {
-            type: String,
-            required: true
-        },
-        impact: {
-            type: String,
-            required: true,
-            enum: ["Low", "Medium", "High"]
-        },
-        urgency: {
-            type: String,
-            required: true,
-            enum: ["Low", "Medium", "High"]
-        },
-        priority: {
-            type: String,
-            default: "Low",
-            enum: ["Low", "Medium", "High", "Critical"]
-        },
-        riskLevel: {
-            type: String,
-            default: "Low",
-            enum: ["Low", "Medium", "High", "Critical"]
-        },
-        status: {
-            type: String,
-            default: "Open",
-            enum: [
-                "Open",
-                "Assigned",
-                "In Progress",
-                "Resolved",
-                "Escalated"
-            ]
-        },
-        reportedBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true
-        }
+const incidentSchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    severity: {
+        type: String,
+        enum: ["low", "medium", "high", "critical"],
+        default: "medium",
     },
-    { timestamps: true }
-);
+    status: {
+        type: String,
+        enum: ["reported", "investigating", "contained", "resolved"],
+        default: "reported",
+    },
+    reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    ticketRef: { type: mongoose.Schema.Types.ObjectId, ref: "Ticket" },
+    affectedSystems: [String],
+    resolvedAt: Date,
+}, { timestamps: true });
 
-module.exports = mongoose.model("Incident", incidentSchema);
+const Incident = mongoose.model("Incident", incidentSchema);
+module.exports = Incident;

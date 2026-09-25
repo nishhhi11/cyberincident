@@ -1,254 +1,255 @@
 const Ticket = require("../models/Ticket");
-const Incident = require("../models/Incident");
-const User = require("../models/User");
-const { createAuditLog } = require("./auditController");
+const AuditLog = require("../models/AuditLog");
 
-const getSlaHours = (priority) =>
-    ({ Critical: 2, High: 6, Medium: 12, Low: 24 }[priority] || 24);
-
-const findTicket = async (id, res) => {
-    const ticket = await Ticket.findById(id);
-
-    if (!ticket) {
-        res.status(404).json({ message: "Ticket not found" });
-        return null;
-    }
-
-    return ticket;
+const SLA_HOURS = {
+    critical: 1,
+    high: 4,
+    medium: 8,
+    low: 24,
 };
 
-const syncIncidentStatus = (ticket, status) =>
-    Incident.findByIdAndUpdate(ticket.incident, { status });
+const getSLADeadline = (priority) => {
+    const hours = SLA_HOURS[priority] || 8;
+    const deadline = new Date();
+    deadline.setHours(deadline.getHours() + hours);
+    return deadline;
+};
 
 const createTicket = async (req, res) => {
     try {
-        const { incidentId } = req.body;
-        const incident = await Incident.findById(incidentId);
-
-        if (!incident) {
-            return res.status(404).json({ message: "Incident not found" });
-        }
-
-        if (await Ticket.findOne({ incident: incident._id })) {
-            return res.status(400).json({
-                message: "A ticket already exists for this incident"
-            });
-        }
-
-        const slaHours = getSlaHours(incident.priority);
-        const slaDeadline = new Date(
-            Date.now() + slaHours * 60 * 60 * 1000
-        );
+        const { title, description, priority, category } = req.body;
+        const slaDeadline = getSLADeadline(priority);
 
         const ticket = await Ticket.create({
-            incident: incident._id,
-            title: incident.title,
-            priority: incident.priority,
-            status: "Open",
-            slaDeadline
+            title,
+            description,
+            priority,
+            category,
+            reportedBy: req.user.id,
+            slaDeadline,
         });
 
-        incident.status = "Assigned";
-        await incident.save();
-
-        await createAuditLog({
-            user: req.user.id,
-            action: "Ticket Created",
-            ticket: ticket._id,
-            incident: incident._id,
-            details: "Ticket created for incident"
+        await AuditLog.create({
+            action: "TICKET_CREATED",
+            performedBy: req.user.id,
+            targetCollection: "tickets",
+            targetId: ticket._id,
+            details: { title, priority, category, slaDeadline },
         });
 
-        res.status(201).json({
-            message: "Ticket created successfully",
-            ticket
-        });
+        res.status(201).json(ticket);
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to create ticket",
-            error: error.message
-        });
+        res.status(500).json({ message: "Failed to create ticket", error: error.message });
     }
 };
 
 const getTickets = async (req, res) => {
     try {
-        const { search, page = 1, limit = 5 } = req.query;
-        const currentPage = Number(page);
-        const itemsPerPage = Number(limit);
-        const skip = (currentPage - 1) * itemsPerPage;
-        let filter = search
-            ? { title: { $regex: search, $options: "i" } }
-            : {};
+        const { page = 1, limit = 10, search, status, priority, category } = req.query;
+        const skip = (page - 1) * limit;
 
-        if (req.user.role === "Employee") {
-            const userIncidents = await Incident.find({
-                reportedBy: req.user.id
-            }).select("_id");
-            
-            const incidentIds = userIncidents.map((inc) => inc._id);
-            filter.incident = { $in: incidentIds };
+        const filter = {};
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+            ];
+        }
+        if (status) filter.status = status;
+        if (priority) filter.priority = priority;
+        if (category) filter.category = category;
+
+        if (req.user.role === "employee") {
+            filter.reportedBy = req.user.id;
         }
 
-        const totalTickets = await Ticket.countDocuments(filter);
-
         const tickets = await Ticket.find(filter)
-            .populate("incident")
-            .populate("assignedTo", "name email role")
-            .sort({ createdAt: -1 })
+            .populate("reportedBy", "name email")
+            .populate("assignedTo", "name email")
             .skip(skip)
-            .limit(itemsPerPage);
+            .limit(Number(limit))
+            .sort({ createdAt: -1 });
+
+        const total = await Ticket.countDocuments(filter);
 
         res.json({
             tickets,
-            currentPage,
-            totalPages: Math.ceil(totalTickets / itemsPerPage),
-            totalTickets
+            total,
+            page: Number(page),
+            totalPages: Math.ceil(total / limit),
         });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to get tickets",
-            error: error.message
+        res.status(500).json({ message: "Failed to fetch tickets", error: error.message });
+    }
+};
+
+const getTicketById = async (req, res) => {
+    try {
+        const ticket = await Ticket.findById(req.params.id)
+            .populate("reportedBy", "name email")
+            .populate("assignedTo", "name email");
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found" });
+        }
+        res.json(ticket);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch ticket", error: error.message });
+    }
+};
+
+const updateTicket = async (req, res) => {
+    try {
+        const ticket = await Ticket.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found" });
+        }
+
+        await AuditLog.create({
+            action: "TICKET_UPDATED",
+            performedBy: req.user.id,
+            targetCollection: "tickets",
+            targetId: ticket._id,
+            details: req.body,
         });
+
+        res.json(ticket);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update ticket", error: error.message });
     }
 };
 
 const assignTicket = async (req, res) => {
     try {
-        const { userId } = req.body;
-        const ticket = await findTicket(req.params.id, res);
+        const { assignedTo } = req.body;
+        const ticket = await Ticket.findByIdAndUpdate(
+            req.params.id,
+            { assignedTo, status: "in_progress" },
+            { new: true }
+        ).populate("assignedTo", "name email");
 
-        if (!ticket) return;
-
-        const user = await User.findById(userId);
-
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found" });
         }
 
-        if (!["Support Agent", "Security Analyst"].includes(user.role)) {
-            return res.status(400).json({
-                message: "User cannot be assigned to a ticket"
-            });
-        }
-
-        ticket.assignedTo = user._id;
-        ticket.status = "Assigned";
-        await ticket.save();
-        await syncIncidentStatus(ticket, "Assigned");
-
-        await createAuditLog({
-            user: req.user.id,
-            action: "Ticket Assigned",
-            ticket: ticket._id,
-            incident: ticket.incident,
-            details: `Ticket assigned to ${user.name}`
+        await AuditLog.create({
+            action: "TICKET_ASSIGNED",
+            performedBy: req.user.id,
+            targetCollection: "tickets",
+            targetId: ticket._id,
+            details: { assignedTo },
         });
 
-        res.json({
-            message: "Ticket assigned successfully",
-            ticket
-        });
+        res.json({ message: "Ticket assigned successfully", ticket });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to assign ticket",
-            error: error.message
-        });
+        res.status(500).json({ message: "Failed to assign ticket", error: error.message });
     }
 };
 
-const updateTicketStatus = async (req, res) => {
+const escalateTicket = async (req, res) => {
     try {
-        const { status } = req.body;
-        const allowedStatuses = [
-            "Open",
-            "Assigned",
-            "In Progress",
-            "Resolved",
-            "Escalated"
-        ];
+        const ticket = await Ticket.findByIdAndUpdate(
+            req.params.id,
+            { status: "escalated", escalated: true },
+            { new: true }
+        );
 
-        if (!allowedStatuses.includes(status)) {
-            return res.status(400).json({
-                message: "Invalid ticket status"
-            });
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found" });
         }
 
-        const ticket = await findTicket(req.params.id, res);
-
-        if (!ticket) return;
-
-        const oldStatus = ticket.status;
-        ticket.status = status;
-
-        await ticket.save();
-        await syncIncidentStatus(ticket, status);
-
-        await createAuditLog({
-            user: req.user.id,
-            action: "Ticket Status Changed",
-            ticket: ticket._id,
-            incident: ticket.incident,
-            details: `Status changed from ${oldStatus} to ${status}`
+        await AuditLog.create({
+            action: "TICKET_ESCALATED",
+            performedBy: req.user.id,
+            targetCollection: "tickets",
+            targetId: ticket._id,
+            details: { reason: req.body.reason || "Manually escalated" },
         });
 
-        res.json({
-            message: "Ticket status updated successfully",
-            ticket
-        });
+        res.json({ message: "Ticket escalated successfully", ticket });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to update ticket status",
-            error: error.message
-        });
+        res.status(500).json({ message: "Failed to escalate ticket", error: error.message });
     }
 };
 
 const resolveTicket = async (req, res) => {
     try {
-        const { resolution } = req.body;
+        const ticket = await Ticket.findByIdAndUpdate(
+            req.params.id,
+            { status: "resolved", resolvedAt: new Date() },
+            { new: true }
+        );
 
-        if (!resolution) {
-            return res.status(400).json({
-                message: "Resolution is required"
-            });
+        if (!ticket) {
+            return res.status(404).json({ message: "Ticket not found" });
         }
 
-        const ticket = await findTicket(req.params.id, res);
-
-        if (!ticket) return;
-
-        ticket.status = "Resolved";
-        ticket.resolution = resolution;
-        ticket.resolvedAt = new Date();
-
-        await ticket.save();
-        await syncIncidentStatus(ticket, "Resolved");
-
-        await createAuditLog({
-            user: req.user.id,
-            action: "Ticket Resolved",
-            ticket: ticket._id,
-            incident: ticket.incident,
-            details: `Ticket resolved: ${resolution}`
+        await AuditLog.create({
+            action: "TICKET_RESOLVED",
+            performedBy: req.user.id,
+            targetCollection: "tickets",
+            targetId: ticket._id,
+            details: { resolvedAt: ticket.resolvedAt, resolution: req.body.resolution },
         });
 
-        res.json({
-            message: "Ticket resolved successfully",
-            ticket
-        });
+        res.json({ message: "Ticket resolved successfully", ticket });
     } catch (error) {
-        res.status(500).json({
-            message: "Failed to resolve ticket",
-            error: error.message
+        res.status(500).json({ message: "Failed to resolve ticket", error: error.message });
+    }
+};
+
+const getTicketStats = async (req, res) => {
+    try {
+        const statusStats = await Ticket.aggregate([
+            { $group: { _id: "$status", count: { $sum: 1 } } },
+        ]);
+
+        const priorityStats = await Ticket.aggregate([
+            { $group: { _id: "$priority", count: { $sum: 1 } } },
+        ]);
+
+        res.json({ statusStats, priorityStats });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch ticket stats", error: error.message });
+    }
+};
+
+const autoEscalateTickets = async () => {
+    try {
+        const now = new Date();
+        const thirtyMinutesLater = new Date(now.getTime() + 30 * 60 * 1000);
+
+        const tickets = await Ticket.find({
+            status: { $nin: ["resolved", "closed", "escalated"] },
+            slaDeadline: { $lte: thirtyMinutesLater, $gte: now },
         });
+
+        for (const ticket of tickets) {
+            ticket.status = "escalated";
+            ticket.escalated = true;
+            await ticket.save();
+
+            await AuditLog.create({
+                action: "TICKET_AUTO_ESCALATED",
+                targetCollection: "tickets",
+                targetId: ticket._id,
+                details: { slaDeadline: ticket.slaDeadline, autoEscalated: true },
+            });
+
+            console.log("Auto-escalated ticket: " + ticket._id + " - " + ticket.title);
+        }
+    } catch (error) {
+        console.log("Auto-escalation error: " + error.message);
     }
 };
 
 module.exports = {
     createTicket,
     getTickets,
+    getTicketById,
+    updateTicket,
     assignTicket,
-    updateTicketStatus,
-    resolveTicket
+    escalateTicket,
+    resolveTicket,
+    getTicketStats,
+    autoEscalateTickets,
 };
